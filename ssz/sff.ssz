@@ -1240,11 +1240,10 @@ public &Anim<frame_t>
     .m.limRange!float?(bs=, -16000.0/.com.WidthScale, 16000.0/.com.WidthScale);
   /*?*/
     float x2 =
-      cscalex*x - xs*(float)(`spr~rct.x - `frames[`drawidx].x) + rx;
+      cscalex*x - xs*(float)(`spr~rct.x - `frames[`drawidx].x);
     float y2 = cscaley*y - ys*(float)(`spr~rct.y - `frames[`drawidx].y);
     if(xs < 0.0){
       x2 *= -1.0;
-      x2 += rx*2.0;
       if(oVer) x2 += xs;
     }
     if(ys < 0.0){
@@ -1263,7 +1262,7 @@ public &Anim<frame_t>
     }
   /?/*.cfg.OpenGL:
     `spr~glDraw(
-      `palFoo(fx), `mask, (rx-x2)*.com.WidthScale, -y2*.com.HeightScale,
+      `palFoo(fx), `mask, -x2*.com.WidthScale, -y2*.com.HeightScale,
       `tile=, xs*.com.WidthScale, cscalex*bs*h*.com.WidthScale,
       ys*.com.HeightScale,
       cscalex*rasterxadd*(.com.WidthScale/.com.HeightScale),
@@ -1271,7 +1270,7 @@ public &Anim<frame_t>
   /*true:
     .sdl.renderMugenZoom(
       rect=, rx*.com.WidthScale, 0.0, `spr~pxl, `palFoo(fx), `mask, `spr~rct=,
-      (rx-x2)*.com.WidthScale, -y2*.com.HeightScale,
+      -x2*.com.WidthScale, -y2*.com.HeightScale,
       `tile=, xs*.com.WidthScale,
       cscalex*bs*h*.com.WidthScale, ys*.com.HeightScale,
       cscalex*rasterxadd*(.com.WidthScale/.com.HeightScale),

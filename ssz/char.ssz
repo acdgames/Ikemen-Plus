@@ -276,6 +276,7 @@ public void drawReflection(float x, float y, float scl)
         }
       }
       int refl = .stg~reflection*ss.alpha >> 8;
+      ss.as~anim~ani.salpha = (int)((float)(ss.as~salpha * refl) / 255.0);
       ss.as~anim~ani.dalpha =
         .m.min!int?(
           255, (ss.as~dalpha >= 0 ? ss.as~dalpha : 128) + (255-refl));
@@ -7144,20 +7145,13 @@ public void draw(float x, float y, float scl)
         fade(rect=, 255);
       }
     }
-  }
-  branch{
-  cond .envcol_time != 0:
-    if(.envcol_under != 0) .com.screenFill(ecol);
-  else:
     .fight~draw(0, lpl, names, .gs(.gsNOBARDISPLAY), facefx, .superplayer);
     .fight~ro.draw(0, .ko, winner);
   }
+  if(.envcol_time != 0) .com.screenFill(ecol);
   if(.envcol_time == 0 || .envcol_under != 0){
     .drawAnimList(.anims=, x, y, scl*.com.cam.baseScale());
-  }
-  if(.envcol_time == 0 && !.gs(.gsNOFG)) .stg~bgDraw(true, bgx, bgy, scl);
-  if(.envcol_time != 0 && .envcol_under == 0){
-    .com.screenFill(ecol);
+    if(.envcol_time == 0 && !.gs(.gsNOFG)) .stg~bgDraw(true, bgx, bgy, scl);
   }
   .fight~draw(1, lpl, names, .gs(.gsNOBARDISPLAY), facefx, .superplayer);
   .fight~ro.draw(1, .ko, winner);

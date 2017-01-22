@@ -246,13 +246,11 @@ public void readAnim(&.sff.Anim!&.bg.Frame? a=, &.ActionList al=, ^/char data)
             * .com.WidthScale + 0.5);
         r.w = (int)((float)(`range_xm-`range_xz+1)*life*.com.WidthScale + 0.5);
       else:
+        r.w = (int)((float)(`range_xz-`range_xm+1)*life*.com.WidthScale + 0.5);
         r.x =
           (int)(
             ((float)(`posx + `range_xz+1) + (float)(.com.GameWidth-320)/2.0)
-            * .com.WidthScale + 0.5)
-          - (short)(
-            (float)(`range_xz-`range_xm+1) * life * .com.WidthScale + 0.5);
-        r.w = (int)((float)(`range_xz-`range_xm+1)*life*.com.WidthScale + 0.5);
+            * .com.WidthScale + 0.5) - r.w;
       }
     }
     setLifeWidth(lrct=, #`mid.frames > 0 && life < `midlife ? life : `midlife);
@@ -430,14 +428,12 @@ public void readAnim(&.sff.Anim!&.bg.Frame? a=, &.ActionList al=, ^/char data)
         r.w =
           (int)((float)(`range_xm-`range_xz+1)*power*.com.WidthScale + 0.5);
       else:
+        r.w =
+          (int)((float)(`range_xz-`range_xm+1)*power*.com.WidthScale + 0.5);
         r.x =
           (int)(
             ((float)(`posx + `range_xz+1) + (float)(.com.GameWidth-320)/2.0)
-            * .com.WidthScale + 0.5)
-          - (short)(
-            (float)(`range_xz-`range_xm+1)*power*.com.WidthScale + 0.5);
-        r.w =
-          (int)((float)(`range_xz-`range_xm+1)*power*.com.WidthScale + 0.5);
+            * .com.WidthScale + 0.5) - r.w;
       }
     }
     setPowerWidth(lrct=, power);
@@ -596,8 +592,7 @@ public void readAnim(&.sff.Anim!&.bg.Frame? a=, &.ActionList al=, ^/char data)
       y -= (float)`teammate_spacingy;
     continue:
       i--;
-    while i >= 0:
-    }
+    while i >= 0:}
   }
   public void setup(^&.sff.Sff sf)
   {
@@ -813,8 +808,7 @@ public void readAnim(&.sff.Anim!&.bg.Frame? a=, &.ActionList al=, ^/char data)
       }
     continue:
       i++;
-    while i < #`cur:
-    }
+    while i < #`cur:}
   }
   public void setup()
   {
@@ -1496,8 +1490,7 @@ public void setPerfect(|.WinTy wt=)
     loop{index i = 0; do:
       `icon[i].setup(sf);
       `icon_lay[i].setup();
-    while ++i < #`icon:
-    }
+    while ++i < #`icon:}
   }
   public void reset()
   {
@@ -1810,8 +1803,7 @@ public &Fight
     loop{index i = 0; while; do:
       `al.readAction(lines, i=);
       i++;
-    while i < #lines:
-    }
+    while i < #lines:}
     void setal<_t>(_t x)
     {
       x:<-:<-[void(i=){i.al.actionList = `al.actionList;}];
@@ -1828,8 +1820,7 @@ public &Fight
     loop{index i = 0; while; do:
       section(:lines, i=:);
       i++;
-    while i < #lines:
-    }
+    while i < #lines:}
     `sf.new(1);
     if(
       #.com.loadFile(def, `sff=)=>error <,
@@ -1856,13 +1847,11 @@ public &Fight
     loop{index i = 0; while; do:
       `readAction(lines, i=);
       i++;
-    while i < #lines:
-    }
+    while i < #lines:}
     loop{index i = 0; while; do:
       `actionList[i].ani.setup(`fsf);
       i++;
-    while i < #`actionList:
-    }
+    while i < #`actionList:}
     `sn.new(1);
     if(
       #`snd > 0 && #.com.loadFile(def, `snd=)=>error <,
@@ -1880,19 +1869,16 @@ public &Fight
         ret def + ":"\r\n + error;
       }
       i++;
-    while i < #`font:
-    }
+    while i < #`font:}
     void setup<_t>(_t x)
     {
       loop{index j = 0; while; do:
         loop{index i = 0; while; do:
           x[j][i].setup(`sf);
           i++;
-        while i < #x[j]:
-        }
+        while i < #x[j]:}
         j++;
-      while j < #x:
-      }
+      while j < #x:}
     }
     setup!`lb.self?(`lb);
     `pb[0].setup(`sf, `sn);
@@ -1911,35 +1897,29 @@ public &Fight
     loop{index i = 0; while; do:
       `lb[tm[0]][i].step(life[i].l, hit[i]);
       i += 2;
-    while i < #`lb[tm[0]]:
-    }
+    while i < #`lb[tm[0]]:}
     loop{index i = 1; while; do:
       `lb[tm[1]][i].step(life[i].l, hit[i]);
       i += 2;
-    while i < #`lb[tm[1]]:
-    }
+    while i < #`lb[tm[1]]:}
     `pb[0].step(life[0].p, life[tm[0] != 1 ? 0 : 2].lv);
     `pb[1].step(life[1].p, life[tm[1] != 1 ? 1 : 3].lv);
     loop{index i = 0; while; do:
       `fa[tm[0]][i].step();
       i += 2;
-    while i < #`fa[tm[0]]:
-    }
+    while i < #`fa[tm[0]]:}
     loop{index i = 1; while; do:
       `fa[tm[1]][i].step();
       i += 2;
-    while i < #`fa[tm[1]]:
-    }
+    while i < #`fa[tm[1]]:}
     loop{index i = 0; while; do:
       `nm[tm[0]][i].step();
       i += 2;
-    while i < #`nm[tm[0]]:
-    }
+    while i < #`nm[tm[0]]:}
     loop{index i = 1; while; do:
       `nm[tm[1]][i].step();
       i += 2;
-    while i < #`nm[tm[1]]:
-    }
+    while i < #`nm[tm[1]]:}
     `wi[0].step(.com.p1wins);
     `wi[1].step(.com.p2wins);
     `ti.step();
@@ -2029,11 +2009,9 @@ public &Fight
         loop{index i = 0; while; do:
           x[j][i].reset();
           i++;
-        while i < #x[j]:
-        }
+        while i < #x[j]:}
         j++;
-      while j < #x:
-      }
+      while j < #x:}
     }
     foo!`lb.self?(`lb);
     `pb[0].reset();
