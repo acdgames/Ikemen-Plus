@@ -1560,8 +1560,6 @@ int envcol_b = 255;
   public float offsetx;
   public float offsety;
   public int relativef;
-  public float x;
-  public float y;
   public int vfacing;
   public int shadowr;
   public int shadowg;
@@ -1593,8 +1591,6 @@ int envcol_b = 255;
     `offsetx = 0.0/0.0;
     `offsety = 0.0/0.0;
     `relativef = .com.IERR;
-    `x = 0.0/0.0;
-    `y = 0.0/0.0;
     `vfacing = .com.IERR;
     `shadowr = .com.IERR;
     `shadowg = .com.IERR;
@@ -1605,14 +1601,6 @@ int envcol_b = 255;
     `supermovetime = .com.IERR;
     `pausemovetime = .com.IERR;
     `angle = 0.0/0.0;
-  }
-  public void setX(float x)
-  {
-    `x = x;
-  }
-  public void setY(float y)
-  {
-    `y = y;
   }
 }
 public &Explod
@@ -5511,8 +5499,8 @@ public void Explod::update(bool oVer, int playerNo)
           `bindtime = 0;
           break, break;
         }
-        if(!.m.isnan(`offsetx)) `x = bc~drawX+bc~offsetX() + `offsetx;
-        if(!.m.isnan(`offsety)) `y = bc~drawY+bc~offsetY() + `offsety;
+        `x = bc~drawX+bc~offsetX() + `offsetx;
+        `y = bc~drawY+bc~offsetY() + `offsety;
       }
     }
   else:
@@ -5550,9 +5538,9 @@ public void Explod::update(bool oVer, int playerNo)
     aal(:.anims=:);
   }
   if(.com.tickNextFrame()){
-    if(`bindtime > 0) `bindtime--;
-    if(screen && `bindtime == 0){
-      switch(`postype){
+    if(`bindtime > 0){
+      `bindtime--;
+      if(screen && `bindtime == 0) switch(`postype){
       case 4://left
         `x = .com.cam.screenX + `offsetx / .com.cam.scale;
         `y = .com.cam.screenY + `offsety / .com.cam.scale;
@@ -5586,8 +5574,8 @@ public void Explod::setPos(&.Char c=)
     `bindid = c.id;
     `facing = c.facing*`relativef;
     `offsetx *= (float)c.facing;
-    if(!.m.isnan(`offsetx)) `setX(c.sysfvar[.fX]+c.offsetX() + `offsetx);
-    if(!.m.isnan(`offsety)) `setY(c.sysfvar[.fY]+c.offsetY() + `offsety);
+    `setX(c.sysfvar[.fX]+c.offsetX() + `offsetx);
+    `setY(c.sysfvar[.fY]+c.offsetY() + `offsety);
     if(`bindtime == 0) `bindtime = 1;
   case 1:
     {
@@ -5596,8 +5584,8 @@ public void Explod::setPos(&.Char c=)
       `bindid = bc~id;
       `facing *= bc~facing*`relativef;
       `offsetx *= (float)bc~facing;
-      if(!.m.isnan(`offsetx)) `setX(bc~sysfvar[.fX]+bc~offsetX() + `offsetx);
-      if(!.m.isnan(`offsety)) `setY(bc~sysfvar[.fY]+bc~offsetY() + `offsety);
+      `setX(bc~sysfvar[.fX]+bc~offsetX() + `offsetx);
+      `setY(bc~sysfvar[.fY]+bc~offsetY() + `offsety);
       if(`bindtime == 0) `bindtime = 1;
     }
   case 2, 3:
@@ -5638,8 +5626,6 @@ public void Explod::modify(
   if(!.m.isnan(mod.offsetx)) `offsetx = mod.offsetx;
   if(!.m.isnan(mod.offsety)) `offsety = mod.offsety;
   if(mod.relativef != .com.IERR) `relativef = mod.relativef;
-  if(!.m.isnan(mod.x)) `x = mod.x;
-  if(!.m.isnan(mod.y)) `y = mod.y;
   if(mod.vfacing != .com.IERR) `vfacing = mod.vfacing;
   if(mod.shadowr != .com.IERR) `shadowr = mod.shadowr;
   if(mod.shadowg != .com.IERR) `shadowg = mod.shadowg;
