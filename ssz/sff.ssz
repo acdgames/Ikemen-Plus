@@ -124,7 +124,7 @@ public &Sprite
 /*?*/
   public &.sdl.Rect rct;
   public short imageGroup, imageNumber;
-  public index palidx = -1, link = -1;
+  public index palidx = -1;
   public int rle = 0;
   public void shareCopy(`self sp=)
   {
@@ -144,7 +144,6 @@ public &Sprite
     `rct = sp.rct;
     `imageGroup = sp.imageGroup;
     `imageNumber = sp.imageNumber;
-    `link = sp.link;
   }
   public ^uint getPal(&.PalleteList pl=)
   {
@@ -757,7 +756,6 @@ public &Sff
         prev = i;
       else:
         spriteList[i].shareCopy(spriteList[(index)indexOfPrevious]=);
-        spriteList[i].link = (index)indexOfPrevious;
       }
       `spriteTable.operate(
         (uint)spriteList[i].imageGroup<<0d16

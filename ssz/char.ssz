@@ -2660,19 +2660,8 @@ public &Char
         }
         i++;
       while i < .sff.NumCharPalletes:
-        if(tmp == 0) branch{
-        cond `mver0() == 1:
+        if(tmp == 0){
           .cgi[`playerno].sf~palList.palTable.remove((uint)1 << 0d16 | 0x1);
-        else:
-          {
-            ^&.sff.Sprite spr = .cgi[`playerno].sf~getSprite(9000, 0);
-            if(#spr == 0) spr = .cgi[`playerno].sf~getSprite(0, 0);
-            if(#spr > 0){
-              .s.copy!uint?(
-                .cgi[`playerno].sf~palList.get(0),
-                .cgi[`playerno].sf~palList.get(spr~palidx));
-            }
-          }
         }
       }
     else:
@@ -4597,7 +4586,7 @@ public &Char
       if(
         `helperindex == 0 && #cl~cmd == 1 && #cl~cmd~key == 1
         && (int)cl~cmd~slash == #cl~hold) break;
-      ret i >= 0 && i == `cpucmd;
+      ret i == `cpucmd;
     }
     loop{index i = 0; while; do:
       if(cl[i].curbuftime > 0) ret true;
