@@ -556,9 +556,9 @@ public &Sprite
         `ar *= -1.0;
         `ag *= -1.0;
         `ab *= -1.0;
-        `mr = (float)(pf.emulg + pf.emulb) / 128.0;
-        `mg = (float)(pf.emulr + pf.emulb) / 128.0;
-        `mb = (float)(pf.emulr + pf.emulg) / 128.0;
+        `mr = (float)(pf.emulg + pf.emulb) / 512.0;
+        `mg = (float)(pf.emulr + pf.emulb) / 512.0;
+        `mb = (float)(pf.emulr + pf.emulg) / 512.0;
       else:
         `mr = (float)pf.emulr / 256.0;
         `mg = (float)pf.emulg / 256.0;
