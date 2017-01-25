@@ -1,4 +1,4 @@
-
+﻿
 lib s = <string.ssz>;
 lib consts = <consts.ssz>;
 lib m = <math.ssz>;
@@ -858,7 +858,7 @@ public &PalFX
       int adr = `eaddr, adg = `eaddg, adb = `eaddb;
       uint subc;
       addsubset(subc=, adr=, adg=, adb=);
-      uint tmp, msk;
+      uint tmp;
     do:
       c = pal[i];
       if(`einvertall != 0) c = !c;
@@ -875,12 +875,12 @@ public &PalFX
       c = (c - subc + tmp) & !(tmp - (tmp >> 0d8));
       tmp = ((c&0xff) + (uint)adb) * (uint)mb >> 0d8;
       tmp =
-        ((tmp | (uint)-(int)((tmp&0xff00)!=0x0)) & 0xff)
+        ((tmp | -(uint)((tmp&0xff00)!=0x0)) & 0xff)
         | (((c>>0d8&0xff) + (uint)adg) * (uint)mg >> 0d8) << 0d8;
       tmp =
-        ((tmp | (uint)-(int)((tmp&0xff0000)!=0x0)<<0d8) & 0xffff)
+        ((tmp | -(uint)((tmp&0xff0000)!=0x0)<<0d8) & 0xffff)
         | (((c>>0d16&0xff) + (uint)adr) * (uint)mr >> 0d8) << 0d16;
-      .workpal[i] = tmp | (uint)-(int)((tmp&0xff000000)!=0x0)<<0d16;
+      .workpal[i] = tmp | -(uint)((tmp&0xff000000)!=0x0)<<0d16;
     while ++i < 256:}
     ret .workpal;
   }
