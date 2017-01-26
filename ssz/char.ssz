@@ -3236,7 +3236,7 @@ public &Char
   {
     if(`ctrl && `helperindex == 0){
       ^`self e = .players.enemyNear(`=, 0, true);
-      if((int)`facing*(int)`distX(e<>=) >= 0) break;
+      if(`trP2DistX()$.v.toF() >= 0.0) break;
       branch{
       cond `stVal.typ == .StTy::S:
         `trChangeAnim(5);
@@ -3306,7 +3306,7 @@ public &Char
               || (!(`inguarddist && `sf(.sfGUARD)) && `cmd~buffer~B > 0))
             :
             if(`stVal.no != 20) `trChangeState(20, -1, -1);
-          cond `stVal.no == 20 && (`cmd~buffer~F < 0 && `cmd~buffer~B < 0):
+          cond `stVal.no == 20 && `cmd~buffer~F < 0 && `cmd~buffer~B < 0:
             `trChangeState(0, -1, -1);
           }
           if(
@@ -3912,10 +3912,7 @@ public &Char
         break, break;
       }
       i++;
-    while i < #.chars[`playerno][`parentindex]~children:
-    break:
-      `parentindex *= -1;
-    }
+    while i < #.chars[`playerno][`parentindex]~children:}
     `children:<-[void(c=){
       if(c >= 0){
         .chars[`playerno][c]~parentindex *= -1;
@@ -4926,7 +4923,7 @@ public &Char
     h.sysfvar[.fVX] = h.sysfvar[.fVY] = 0.0;
     if(ownpal != 0){
       h.palfx.new(1);
-      h.palfx~remap = .chars[`playerno][h.parentindex]~getPalMap() + (index)[];
+      h.palfx~remap = `getPalMap() + (index)[];
     }
     h.trChangeState2(st, `playerno, 0, 1);
   }
