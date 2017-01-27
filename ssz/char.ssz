@@ -3236,7 +3236,6 @@ public &Char
   public void furimuki()
   {
     if(`ctrl && `helperindex == 0){
-      ^`self e = .players.enemyNear(`=, 0, true);
       if(`trP2DistX()$.v.toF() >= 0.0) break;
       branch{
       cond `stVal.typ == .StTy::S:
