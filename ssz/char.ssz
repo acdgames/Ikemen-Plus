@@ -1884,9 +1884,10 @@ public &Projectile
     ^&.act.Rect clsn1 = pr.ani~ani.currentFrame()=>frm$frm~clsn2();
     ^&.act.Rect clsn2 = `ani~ani.currentFrame()=>frm$frm~clsn2();
     &.ClsnHantei ch.set(
-      pr.clsnscalex, pr.clsnscaley, pr.x, pr.y,
-      pr.facing > 0 ? .pLrSet : .mLrSet,
-      `clsnscalex, `clsnscaley, `x, `y, `facing > 0 ? .pLrSet : .mLrSet);
+      #pr.clsnscalex, pr.clsnscaley, pr.x, pr.y,
+      (float)pr.facing*pr.clsnscalex > 0.0 ? .pLrSet : .mLrSet,
+      #`clsnscalex, `clsnscaley, `x, `y,
+      (float)`facing*`clsnscalex > 0.0 ? .pLrSet : .mLrSet);
     loop{index i = 0; while; do:
       loop{index j = 0; while; do:
         if(ch.hantei(clsn1[i], clsn2[j])) ret true;
@@ -2874,12 +2875,12 @@ public &Char
     ^&.act.Rect clsn1 = c1atk ? atk.curFrame~clsn1() : atk.curFrame~clsn2();
     ^&.act.Rect clsn2 = c1slf ? `curFrame~clsn1() : `curFrame~clsn2();
     &.ClsnHantei ch.set(
-      atk.sysfvar[.fCLSNXSCALE], atk.sysfvar[.fCLSNYSCALE],
+      #atk.sysfvar[.fCLSNXSCALE], atk.sysfvar[.fCLSNYSCALE],
       atk.sysfvar[.fX] + atk.offsetX(), atk.sysfvar[.fY] + atk.offsetY(),
-      atk.facing > 0 ? .pLrSet : .mLrSet,
-      `sysfvar[.fCLSNXSCALE], `sysfvar[.fCLSNYSCALE],
+      (float)atk.facing*atk.sysfvar[.fCLSNXSCALE] > 0.0 ? .pLrSet : .mLrSet,
+      #`sysfvar[.fCLSNXSCALE], `sysfvar[.fCLSNYSCALE],
       `sysfvar[.fX] + `offsetX(), `sysfvar[.fY] + `offsetY(),
-      `facing > 0 ? .pLrSet : .mLrSet);
+      (float)`facing*`sysfvar[.fCLSNXSCALE] > 0.0 ? .pLrSet : .mLrSet);
     loop{index i = 0; while; do:
       loop{index j = 0; while; do:
         if(ch.hantei(clsn1[i], clsn2[j])) ret true;
@@ -2900,11 +2901,11 @@ public &Char
     ^&.act.Rect clsn1 = pr.ani~ani.currentFrame()=>frm$frm~clsn1();
     ^&.act.Rect clsn2 = `curFrame~clsn2();
     &.ClsnHantei ch.set(
-      pr.clsnscalex, pr.clsnscaley, pr.x, pr.y,
-      pr.facing > 0 ? .pLrSet : .mLrSet,
-      `sysfvar[.fCLSNXSCALE], `sysfvar[.fCLSNYSCALE],
+      #pr.clsnscalex, pr.clsnscaley, pr.x, pr.y,
+      (float)pr.facing*pr.clsnscalex > 0.0 ? .pLrSet : .mLrSet,
+      #`sysfvar[.fCLSNXSCALE], `sysfvar[.fCLSNYSCALE],
       `sysfvar[.fX] + `offsetX(), `sysfvar[.fY] + `offsetY(),
-      `facing > 0 ? .pLrSet : .mLrSet);
+      (float)`facing*`sysfvar[.fCLSNXSCALE] > 0.0 ? .pLrSet : .mLrSet);
     loop{index i = 0; while; do:
       loop{index j = 0; while; do:
         if(ch.hantei(clsn1[i], clsn2[j])) ret true;
@@ -2923,11 +2924,11 @@ public &Char
     ^&.act.Rect clsn1 = pr.ani~ani.currentFrame()=>frm$frm~clsn2();
     ^&.act.Rect clsn2 = `curFrame~clsn1();
     &.ClsnHantei ch.set(
-      pr.clsnscalex, pr.clsnscaley, pr.x, pr.y,
-      pr.facing > 0 ? .pLrSet : .mLrSet,
-      `sysfvar[.fCLSNXSCALE], `sysfvar[.fCLSNYSCALE],
+      #pr.clsnscalex, pr.clsnscaley, pr.x, pr.y,
+      (float)pr.facing*pr.clsnscalex > 0.0 ? .pLrSet : .mLrSet,
+      #`sysfvar[.fCLSNXSCALE], `sysfvar[.fCLSNYSCALE],
       `sysfvar[.fX] + `offsetX(), `sysfvar[.fY] + `offsetY(),
-      `facing > 0 ? .pLrSet : .mLrSet);
+      (float)`facing*`sysfvar[.fCLSNXSCALE] > 0.0 ? .pLrSet : .mLrSet);
     loop{index i = 0; while; do:
       loop{index j = 0; while; do:
         if(ch.hantei(clsn1[i], clsn2[j])) ret true;

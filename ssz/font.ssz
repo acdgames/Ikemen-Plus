@@ -274,7 +274,7 @@ public &Font
       dx -= (float)`textWidth(txt)*xscl;
     }
     ^uint pal = `mpl~img[bank].colorPallet;
-    if(.sff.allPalFX~time != 0) pal = .sff.allPalFX~getFxPal(pal, false);
+    if(.sff.allPalFX~enable) pal = .sff.allPalFX~getFxPal(pal, false);
     txt:<-[void(c){
       dx +=
         `drawChar(dx, dy, xscl, yscl, bank, c, pal=) + (float)`spacingx*xscl;

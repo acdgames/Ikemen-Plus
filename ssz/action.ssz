@@ -175,24 +175,21 @@ public &DrawnClsn
       y = `y + `yscale*(float)`clsn[i].t + (float)(.com.GameHeight-240);
       w = (float)`clsn[i].r - (float)`clsn[i].l;
       h = (float)`clsn[i].b - (float)`clsn[i].t;
-      if(`xscale < 0.0){
-        x *= -1.0;
-        x += 160.0*2.0;
-      }
+      if(`xscale < 0.0) x *= -1.0;
       if(`yscale < 0.0) y *= -1.0;
     /?/*.cfg.OpenGL:
       .sdl.RenderMugenGl(:
         spr.pxl<>, spr.colorPallet<>=, -1, spr.rct=,
-        (-x+160.0)*.com.WidthScale, -y*.com.HeightScale, til=,
+        -x*.com.WidthScale, -y*.com.HeightScale, til=,
         `xscale*.com.WidthScale*w, `xscale*.com.WidthScale*w,
         `yscale*.com.WidthScale*h, 1.0, 0.0, 0.0, alpha, .com.scrrect=,
-        .com.WidthScale*160.0, 0.0:);
+        0.0, 0.0:);
     /*true:
       {
         %byte dammy;
         .sdl.renderMugenZoom(
-          .com.scrrect=, .com.WidthScale*160.0, 0.0, spr.pxl, spr.colorPallet,
-          -1, spr.rct=, (-x+160.0)*.com.WidthScale, -y*.com.HeightScale, til=,
+          .com.scrrect=, 0.0, 0.0, spr.pxl, spr.colorPallet,
+          -1, spr.rct=, -x*.com.WidthScale, -y*.com.HeightScale, til=,
           `xscale*.com.WidthScale*w, `xscale*.com.WidthScale*w,
           `yscale*.com.WidthScale*h, 0.0, 0d0, alpha, spr.rle, spr.pluginbuf=);
       }
