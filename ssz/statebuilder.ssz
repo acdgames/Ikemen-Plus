@@ -6310,7 +6310,7 @@ public &StateBuilder
           "e~ontop=1;e~sprpriority=.consts.int_t::MIN;e~ownpal=1;";
       case .CtrlTy::ModifyExplod:
         `state.ctrlList[-1].task .=
-          "&.ModifyExplod m;int t=0,rpg=-1,rpi=0;float rx=0.0,ry=0.0;";
+          "&.ModifyExplod m;int t=-1,rpg=-1,rpi=0;float rx=0.0,ry=0.0;";
       }
       ^/char exp =
         `state.ctrlList[-1].typ == .CtrlTy::ModifyExplod ? "m" : "e<>";
