@@ -1188,7 +1188,7 @@ const int ATP =
         || hit.reversal_attr > 0
         ? (int)-1 : 1);
   }
-  public int setHb(&.Hitdef hit=, bool guard, bool combo, int absdamage=)
+  public void setHb(&.Hitdef hit=, bool guard, bool combo, int absdamage=)
   {
     bool cmb = combo && !`hb.guarded;
     bool fall = `hb.fallf;
@@ -1227,7 +1227,7 @@ const int ATP =
       }
       absdamage = hit.guarddamage;
       `hb.hitcount = hc;
-      ret 2 * (`hb.typ == 0 || hit.reversal_attr > 0 ? (int)-1 : 1);
+      ret;
     }
     `hb.hitshaketime = .m.max!int?(0, hit.shaketime);
     `hb.slidetime = hit.ground_slidetime;
@@ -1259,7 +1259,6 @@ const int ATP =
     `hb.hitcount = cmb ? hc+1 : 1;
     `hb.fallcount = fc;
     `hb.fallf |= fall;
-    ret 1 * (`hb.typ == 0 || hit.reversal_attr > 0 ? (int)-1 : 1);
   }
 }
 const index iLIFE              = 10;
@@ -5833,6 +5832,17 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     bool guard =
       (pro != 0 || !by.ls(.lsUNGUARDABLE)) && `pyr.sf(.sfGUARD)
       && (!`pyr.ls(.lsGETHIT) || `pyr.stVal.hb.guarded);
+    if(
+      guard && .com.autoguard[`pyr.playerno]
+      && `pyr.acttmp > 0 && !`pyr.ls(.lsGETHIT)
+      && (`pyr.stVal.typ == .StTy::S || `pyr.stVal.typ == .StTy::C)
+      && ((int)`pyr.stVal.typ&hit.guardflag) == 0) branch
+    {
+    cond ((int).StTy::S&hit.guardflag) != 0 && !`pyr.ls(.lsNOSTANDGUARD):
+      `pyr.stVal.typ = .StTy::S;
+    cond ((int).StTy::C&hit.guardflag) != 0 && !`pyr.ls(.lsNOCROUCHGUARD):
+      `pyr.stVal.typ = .StTy::C;
+    }
     hitting = `pyr.stVal.hitCheck(hit=, guard);
     bool p2s = false;
     {
@@ -5884,17 +5894,6 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       int absdamage = 0;
       branch{
       cond hbset:
-        if(
-          guard && .com.autoguard[`pyr.playerno]
-          && `pyr.acttmp > 0 && !`pyr.ls(.lsGETHIT)
-          && (`pyr.stVal.typ == .StTy::S || `pyr.stVal.typ == .StTy::C)
-          && ((int)`pyr.stVal.typ&hit.guardflag) == 0) branch
-        {
-        cond ((int).StTy::S&hit.guardflag) != 0 && !`pyr.ls(.lsNOSTANDGUARD):
-          `pyr.stVal.typ = .StTy::S;
-        cond ((int).StTy::C&hit.guardflag) != 0 && !`pyr.ls(.lsNOCROUCHGUARD):
-          `pyr.stVal.typ = .StTy::C;
-        }
         `pyr.stVal.setHb(
           hit=, guard, `pyr.stVal.mov == .MovTy::H || `pyr.ls(.lsGETHIT),
           absdamage=);
