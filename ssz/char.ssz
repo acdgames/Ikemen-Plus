@@ -5785,7 +5785,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     int hitting=, `pyr.self by=, &.Hitdef hit=,
     float x, float y, int pro, int hits)
   {
-    void expreset(&.Char p1=, &.Char p2=, float y, int animNo)
+    void hitspark(&.Char p1=, &.Char p2=, int animNo)
     {
       ^&.act.Action ani;
       branch{
@@ -5807,7 +5807,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       e~offsetx =
         x - `hit.sparkx * (`pro != 0 ? -(float)(`pro*p1.facing) : 1.0);
       e~offsety =
-        y + `hit.sparky + (`by.id == p1.id ? 0.0 : p1.stVal.hit.sparky);
+        `y + `hit.sparky + (`by.id == p1.id ? 0.0 : p1.stVal.hit.sparky);
       e~relativef = 1;
       e~scalex = e~scaley = 1.0;
       e~ontop = 1;
@@ -5891,6 +5891,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     }
     if(hitting > 0){
       if(hitting == 1 && #`pyr.sounds > 0) `pyr.sounds[0].sound.new(0);
+      if(`pyr.sysivar[.iBINDTOID] == by.id) `pyr.setBindTime(0);
       int absdamage = 0;
       branch{
       cond hbset:
@@ -5947,7 +5948,8 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
           if(!.m.isnan(snapy)) `pyr.stVal.hb.yoff += snapy - `pyr.sysfvar[.fY];
           if(hit.snapt != 0 && `pyr.ho < 0){
             `pyr.setBindToId(by=);
-            `pyr.setBindTime(hit.snapt + (int)!by.isPaused());
+            `pyr.setBindTime(
+              hit.snapt + (int)(hit.snapt > 0 && !by.isPaused()));
             `pyr.sysivar[.iBINDFACING] = 0;
             `pyr.sysfvar[.fBINDPOSX] =
               !.m.isnan(hit.snapx) ? hit.mindistx : 0.0/0.0;
@@ -5972,7 +5974,6 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       }
       if(!p2s && !`pyr.ls(.lsGETHIT)) `pyr.cs1tmp = false;
       `pyr.sysivar[.iSPECIALFLAG] |= .lsGETHIT;
-      if(`pyr.sysivar[.iBINDTOID] == by.id) `pyr.setBindTime(0);
       bool live = `pyr.sysivar[.iLIFE] > 0;
       bool kill = hitting == 1 ? hit.kill : hit.guard_kill;
       `pyr.stVal.hb.damage +=
@@ -6009,9 +6010,9 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     cond<hit> #hitting == 1:
       if(hit.sparkno != .com.IERR) branch{
       cond hit.reversal_attr > 0:
-        expreset(`pyr=, by=, y, hit.sparkno);
+        hitspark(`pyr=, by=, hit.sparkno);
       else:
-        expreset(by=, `pyr=, y, hit.sparkno);
+        hitspark(by=, `pyr=, hit.sparkno);
       }
       branch{
         if(hit.hitsoundg == .com.IERR) break;
@@ -6038,9 +6039,9 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     else:
       if(hit.guard_sparkno != .com.IERR) branch{
       cond hit.reversal_attr > 0:
-        expreset(`pyr=, by=, y, hit.guard_sparkno);
+        hitspark(`pyr=, by=, hit.guard_sparkno);
       else:
-        expreset(by=, `pyr=, y, hit.guard_sparkno);
+        hitspark(by=, `pyr=, hit.guard_sparkno);
       }
       branch{
         if(hit.guardsoundg == .com.IERR) break;
@@ -6071,9 +6072,6 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       if(pro == 0 && hit.hitonce > 0) by.trTargetDrop(-1, false);
       by.addTarget(`pyr.id);
       `pyr.stVal.hb.addByid(by.id, by.sysivar[.iAIRJUGGLE]);
-      if(`pyr.hittmp < 2){
-        `pyr.stVal.hb.by[-1].juggle = by.sysivar[.iAIRJUGGLE];
-      }
     diff<hit>:
       branch{
         int byf;
@@ -6115,7 +6113,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
         `pyr.palfx~amplr = hit.palfx_amplr;
         `pyr.palfx~amplg = hit.palfx_amplg;
         `pyr.palfx~amplb = hit.palfx_amplb;
-        if(hit.palfx_cycletime > 0) `pyr.palfx~cycletime = hit.palfx_cycletime;
+        `pyr.palfx~cycletime = hit.palfx_cycletime;
         `pyr.palfx~color =
           .m.max!float?(0.0)<, .m.min!float?(1.0)<,
           ((float)hit.palfx_color / 256.0);
