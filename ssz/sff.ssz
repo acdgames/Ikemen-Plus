@@ -1035,7 +1035,7 @@ public &Anim<frame_t>
   {
     if(#`frames > 0) branch{
       int t = time, oldt = 0;
-    cond t < 0:
+    cond t <= 0:
       loop{
         index i = `current;
         t += `time;
@@ -1043,8 +1043,8 @@ public &Anim<frame_t>
         continue;
       do:
         t += .m.max!int?(0, `frames[i].time);
+        if(lp && i == #`frames-1 && `frames[i].time == -1) ret i + 1;
       continue:
-        if(lp && (i == #`frames-1 && `frames[i].time == -1)) ret i + 1;
         if(t >= 0) ret i + 1;
         i--;
       while i >= 0 && (`current < `loopstart || i >= `loopstart):
@@ -1060,7 +1060,7 @@ public &Anim<frame_t>
         t += `time;
       do:
         t -= .m.max!int?(0, `frames[i].time);
-        if(t <= 0 || (i == #`frames-1 && `frames[i].time == -1)) ret i + 1;
+        if(t < 0 || (i == #`frames-1 && `frames[i].time == -1)) ret i + 1;
         i++;
         if(i >= #`frames){
           if(t == oldt) break, break;

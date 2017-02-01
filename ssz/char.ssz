@@ -2158,7 +2158,7 @@ public &Char
     `rangeSetSysFVar(0, #`sysfvar-1, 0.0);
     `rangeSetIVar(0, #`ivar-1, 0);
     `rangeSetFVar(0, #`fvar-1, 0.0);
-    `key = -1; `id = .com.IERR; `playerno = -1; `helperindex = -1;
+    `key = -1; `id = -1; `playerno = -1; `helperindex = -1;
     `helperid = 0; `parentindex = .com.IERR;
     `facing = 1;
     `keyctrl = false;
@@ -3052,7 +3052,7 @@ public &Char
   }
   public void drawAnim()
   {
-    if(`helperindex < 0 || `id < 0) ret;
+    if(`helperindex < 0) ret;
     if(.com.clsndraw && #`curFrame > 0){
       float x = `sysfvar[.fX]+`offsetX();
       float y = `sysfvar[.fY]+`offsetY();
@@ -4355,7 +4355,7 @@ public &Char
   }
   public int trId()
   {
-    ret `id < 0 ? !`id : `id;
+    ret `id;
   }
   public void addX(float x)
   {
@@ -4557,7 +4557,7 @@ public &Char
     }
     if(anim >= 0) `trChangeAnim(anim);
     if(ctrl >= 0) `setCtrl(ctrl != 0);
-    if(`changeState1(p, n) && `minus == 0 && `id >= 0){
+    if(`changeState1(p, n) && `minus == 0){
       `changeState2();
       .changeStateNest++;
       `state(::);
@@ -4883,7 +4883,6 @@ public &Char
   {
     c = .create(`playerno);
     if(#c == 0) ret;
-    c~id ^= -1;
     c~helperid = 0;
     c~copyParent(`=);
     `addChild(c~helperindex);
@@ -5753,12 +5752,10 @@ public void PlayerList!&Char?::action(
 {
   .commandUpdate();
   loop{*`top.self p = `top; while; do:
-    if(p~c~id < 0) p~c~id ^= -1;
     if(p~c~stVal.mov == .MovTy::A) p~c~action();
     p = p~next;
   while #p > 0:}
   loop{*`top.self p = `top; while; do:
-    if(p~c~id < 0) p~c~id ^= -1;
     p~c~action();
     p = p~next;
   while #p > 0:}
@@ -5772,7 +5769,6 @@ public void PlayerList!&Char?::update(
     *`top.self p = `top;
     while;
   do:
-    if(p~c~id < 0) continue;
     p~c~update(cvmin=, cvmax=, highest=, lowest=, leftest=, rightest=);
   continue:
     p = p~next;
@@ -6193,7 +6189,6 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     pyr.enemynClear();
     while;
   do:
-    if(p~c~id < 0) continue;
     contact = 0;
     if(
       p~c~atktmp == 0 || p~c~id == pyr.id || (
@@ -6271,7 +6266,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     }
   continue:
     if(
-      p~c~id >= 0 && (pyr.playerno&1) != (p~c~playerno&1)
+      (pyr.playerno&1) != (p~c~playerno&1)
       && pyr.ls(.lsPLAYERPUSH) && p~c~ls(.lsPLAYERPUSH) && (
         (
           pyr.stVal.typ == .StTy::A
@@ -6430,11 +6425,11 @@ public void PlayerList!&Char?::getHit()
 {
   *`top.self p;
   loop{p = `top; while; do:
-    if(p~c~id >= 0) `clsn(p~c<>=, false);
+    `clsn(p~c<>=, false);
     p = p~next;
   while #p > 0:}
   loop{p = `top; while; do:
-    if(p~c~id >= 0) `clsn(p~c<>=, true);
+    `clsn(p~c<>=, true);
     p = p~next;
   while #p > 0:}
 }
@@ -6445,7 +6440,7 @@ public void PlayerList!&Char?::tick()
     *`top.self p = `top;
     while;
   do:
-    if(p~c~id >= 0) p~c~tick();
+    p~c~tick();
     p = p~next;
   while #p > 0:}
 }
