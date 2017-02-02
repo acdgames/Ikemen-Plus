@@ -2809,10 +2809,7 @@ TUserFunc(bool, InitMugenGl)
 		"void main(void){"
 		"vec4 c = texture2D(tex, gl_TexCoord[0].st);"
 		"if(neg) c.rgb = vec3(1.0) - c.rgb;"
-		"float gcol = (c.r + c.g + c.b) / 3.0;"
-		"c.r += (gcol - c.r) * gray + add.r;"
-		"c.g += (gcol - c.g) * gray + add.g;"
-		"c.b += (gcol - c.b) * gray + add.b;"
+		"c.rgb += (vec3((c.r + c.g + c.b) / 3.0) - c.rgb) * gray + add;"
 		"c.rgb *= mul;"
 		"c.a *= a;"
 		"gl_FragColor = c;"
@@ -3112,6 +3109,9 @@ void renderMugenGl(
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glTranslated(0, g_h, 0);
+	if (shader == g_mugenshaderFc) {
+		drawQuads(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+	}
 	if(alpha == -1){
 		glUniform1fARB(glGetUniformLocation(shader, "a"), 1.0);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -3198,7 +3198,6 @@ TUserFunc(
 	glUniform1iARB(g_uniformMsk, mask);
 	glEnable(GL_TEXTURE_1D);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, texid);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(dstr->x, g_h - (dstr->y+dstr->h), dstr->w, dstr->h);
@@ -3260,6 +3259,7 @@ TUserFunc(
 	rcy = -rcy;
 	if(yscl < 0) y = -y;
 	y += rcy;
+	glUseProgramObjectARB(g_mugenshaderFc);
 	glUniform1iARB(g_uniformNeg, neg);
 	glUniform1fARB(g_uniformGray, 1 - color);
 	glUniform3fARB(g_uniformAdd, addr, addg, addb);
@@ -3270,9 +3270,6 @@ TUserFunc(
 	glEnable(GL_SCISSOR_TEST);
 	glScissor(dstr->x, g_h - (dstr->y+dstr->h), dstr->w, dstr->h);
 	//
-	glPushMatrix();
-	glOrtho(0, g_w, 0, g_h, -1, 1);
-	glPopMatrix();
 	renderMugenGl(
 		rcy, rcx, alpha, angle, rasterxadd, vscl, yscl, xbotscl, xtopscl,
 		tl, y, x, r, g_mugenshaderFc);
