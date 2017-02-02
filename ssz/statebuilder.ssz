@@ -2345,11 +2345,11 @@ public &StateBuilder
       branch{
         ^/char param;
       cond .s.equ("info.name", token):
-        param = "name";
+        param = "nameLow";
       cond .s.equ("info.displayname", token):
-        param = "displayname";
+        param = "displaynameLow";
       cond .s.equ("info.author", token):
-        param = "author";
+        param = "authorLow";
       else:
         break, else;
       comm:
@@ -2361,9 +2361,7 @@ public &StateBuilder
           }
           token = in[0..fnd];
           in = in[fnd+1..-1];
-          out .=
-            ".s.equ(.s.toLower(.stg~".= param
-            .= "),"\" .= .s.toLower(token) .= \"")";
+          out .= ".s.equ(.stg~".= param .= ","\" .= .s.toLower(token) .= \"")";
           ret true;
         }]) ret -1;
       }

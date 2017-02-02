@@ -1489,7 +1489,7 @@ void insIL(%index l=, index i, index x)
 
 public &CharGlobalInfo
 {
-  public ^/char def, displayname, author;
+  public ^/char def, displayname, author, nameLow, authorLow;
   public ^/char sprite;
   public ^/char anim;
   public ^/char sound;
@@ -2487,6 +2487,8 @@ public &Char
       }
       err = sc.getText("author", data=);
       if(#err == 0 && #data > 0) .cgi[`playerno].author = data;
+      .cgi[`playerno].nameLow = .s.toLower(`name);
+      .cgi[`playerno].authorLow = .s.toLower(.cgi[`playerno].author);
     }
     void files(&.com.Section sc=, bool unicode)
     {
@@ -4123,8 +4125,7 @@ public &Char
   {
     loop{index i = 1; while; do:
       if(
-        .chars[`playerno][i]~helperindex > 0
-        && !.chars[`playerno][i]~ls(.lsDESTROY)
+        !.chars[`playerno][i]~ls(.lsDESTROY)
         && (id <= 0 || id == .chars[`playerno][i]~helperid))
       {
         .c = .chars[`playerno][i];
@@ -4763,7 +4764,7 @@ public &Char
     cond no == 2:
       {
         ^`self e = `getP2();
-        ret #e > 0 && .s.equ(name, .s.toLower(.chars[e~playerno]<>~name));
+        ret #e > 0 && .s.equ(name, .cgi[e~playerno].nameLow);
       }
     else:
       foo = (no - 1) ^ (`playerno & 1);
@@ -4785,11 +4786,11 @@ public &Char
     {
       ret false;
     }
-    ret .s.equ(name, .s.toLower(.chars[foo]<>~name));
+    ret .s.equ(name, .cgi[foo].nameLow);
   }
   public bool trAuthor(^/char name)
   {
-    ret .s.equ(name, .s.toLower(.cgi[`playerno].author));
+    ret .s.equ(name, .cgi[`playerno].authorLow);
   }
   public int trFrontEdgeDist()
   {

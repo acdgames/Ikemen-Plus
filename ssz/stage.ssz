@@ -67,7 +67,7 @@ public &Stage
   /^/char def;
   /^/char spr;
   /^/char bgmusic;
-  /^/char name, displayname, author;
+  /^/char name, displayname, author, nameLow, displaynameLow, authorLow;
   /^&.sff.Sff sf;
   /%&.bg.BackGround bg;
   /%&.bg.Action actionList;
@@ -132,6 +132,9 @@ public &Stage
       }
       err = sc.getText("author", data=);
       if(#err == 0 && #data > 0) `author = data;
+      `nameLow = .s.toLower(`name);
+      `displaynameLow = .s.toLower(`displayname);
+      `authorLow = .s.toLower(`author);
     }
     public void camera(&.com.Section sc=)
     {
