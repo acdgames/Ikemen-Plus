@@ -5193,11 +5193,11 @@ public &Char
   }
   public float trHitVelX()
   {
-    ret `stVal.mov != .MovTy::H ? -`stVal.hb.xvel : 0.0;
+    ret `stVal.mov == .MovTy::H ? -`stVal.hb.xvel : 0.0;
   }
   public float trHitVelY()
   {
-    ret `stVal.mov != .MovTy::H ? -`stVal.hb.yvel : 0.0;
+    ret `stVal.mov == .MovTy::H ? -`stVal.hb.yvel : 0.0;
   }
   public int trHitId()
   {

@@ -749,7 +749,7 @@ TUserFunc(
 	SDL_Surface* psrc;
 	SDL_Rect dest;
 	psrc =
-		TTF_RenderUNICODE_Solid(
+		TTF_RenderUNICODE_Blended(
 			pf, (Uint16*)pu->refToWstr(str).c_str(), c);
 	dest.x = x;
 	dest.y = y;

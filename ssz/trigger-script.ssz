@@ -579,7 +579,7 @@ void gethitvar(&.lua.State L=, int re=)
 void hitcount(&.lua.State L=, int re=)
 {
   re = 1;
-  L.pushNumber((double)(#.cwc > 0 ? .cwc~stVal.hb.hitcount : 0));
+  L.pushNumber((double)(#.cwc > 0 ? .cwc~sysivar[.chr.iHITCOUNT] : 0));
 }
 
 void hitdefattr(&.lua.State L=, int re=)
@@ -721,6 +721,12 @@ void movehit(&.lua.State L=, int re=)
   L.pushNumber(#.cwc > 0 ? (double).cwc~trMoveHit() : 0.0);
 }
 
+void movereversed(&.lua.State L=, int re=)
+{
+  re = 1;
+  L.pushNumber(#.cwc > 0 ? (double).cwc~trMoveReversed() : 0.0);
+}
+
 void movetype(&.lua.State L=, int re=)
 {
   re = 1;
@@ -731,12 +737,6 @@ void movetype(&.lua.State L=, int re=)
   case .chr.MovTy::H: mtype = "H";
   }
   L.pushString(mtype);
-}
-
-void movereversed(&.lua.State L=, int re=)
-{
-  re = 1;
-  L.pushNumber(#.cwc > 0 ? (double).cwc~trMoveReversed() : 0.0);
 }
 
 void name(&.lua.State L=, int re=)
