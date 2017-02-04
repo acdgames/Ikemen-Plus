@@ -8187,7 +8187,15 @@ public &StateBuilder
         }
         loop{index m = 0; while; do:
           if(#`state.ctrlList[-1].trigger[m] == 0) break;
-          if(m != 0) buf .= "||";
+          branch{
+          cond #`state.ctrlList[-1].trigger > 1024 && (m & 1023) == 0:
+            if(m != 0){
+              buf .= ")||";
+            }
+            buf .= '(';
+          cond m != 0:
+            buf .= "||";
+          }
           branch{
           cond #`state.ctrlList[-1].trigger[m] > 384:
             item.new(0);
@@ -8209,7 +8217,10 @@ public &StateBuilder
           }
           buf .= '`' .= item<> .= "()";
           m++;
-        while m < #`state.ctrlList[-1].trigger:}
+        while m < #`state.ctrlList[-1].trigger:
+        break:
+          if(#`state.ctrlList[-1].trigger > 1024) buf .= ')';
+        }
         buf .= "))";
         dbuf.new(0);
         if(`state.persistent != 1){
