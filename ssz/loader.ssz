@@ -30,6 +30,7 @@ public void error(^/char m)
 
 bool stage()
 {
+  if(.com.round != 1) ret true;
   ^/char stag;
   branch{
   cond .sc.syst.selinf.sel.curStageNo == 0:
@@ -70,7 +71,7 @@ int chara(int pn)
   if(.com.tmode[pn&1] == (int).com.TeamMode::Turns){
     memberNo = pn == 0 ? .com.p2wins : .com.p1wins;
   }
-  if(nsel  <= memberNo) ret 0;
+  if(nsel <= memberNo) ret 0;
   int pal;
   ^index idx.new(nsel);
   lock(.sc.syst.selinf.p){
@@ -218,8 +219,7 @@ void load()
       charDone[i] = true;
       .chr.wakewakaLength[i] = 0;
       i += 2;
-    while i < #.chr.chars:
-    }
+    while i < #.chr.chars:}
     if(
       !charDone[3] && #.sc.syst.selinf.p[1].selchr > 0
       && .com.tmode[1] != (int).com.TeamMode::Simul) loop
@@ -232,8 +232,7 @@ void load()
       charDone[i] = true;
       .chr.wakewakaLength[i] = 0;
       i += 2;
-    while i < #.chr.chars:
-    }
+    while i < #.chr.chars:}
     if(!codeDone && allCharDone()){
       if(!.stateCompile()){
         .state = .State::Error;
