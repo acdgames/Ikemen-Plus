@@ -68,7 +68,7 @@ const int GameHeight =
 const float WidthScale = (float)cfg.Width / (float)GameWidth;
 const float HeightScale = (float)cfg.Height / (float)GameHeight;
 
-const bool CharLocalCoord320 = true;
+const bool CharLocalCoord320 = false;
 
 const float CharGameWidth = CharLocalCoord320 ? 320.0 : (float)GameWidth;
 const float CharGameLeft = ((float)GameWidth - CharGameWidth) / 2.0;
