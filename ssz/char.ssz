@@ -3984,18 +3984,22 @@ public &Char
       cond (`facing > 0 && pt == 2) || (`facing < 0 && pt == 3):
         o.setX(
           .com.cam.screenX
-          + ((float).com.GameWidth - x*(pt == 2 ? -1.0 : 1.0))/.com.cam.scale);
+          + (.com.CharGameRight - x*(pt == 2 ? -1.0 : 1.0)) / .com.cam.scale);
       else:
-        o.setX(.com.cam.screenX + x*(pt == 2 ? -1.0 : 1.0) / .com.cam.scale);
+        o.setX(
+          .com.cam.screenX
+          + (.com.CharGameLeft + x*(pt == 2 ? -1.0 : 1.0)) / .com.cam.scale);
       }
       if(!.m.isnan(y)) o.setY(.com.cam.screenY + y / .com.cam.scale);
       o.facing *= `facing;
     case 4://left
-      if(!.m.isnan(x)) o.setX(.com.cam.screenX + x / .com.cam.scale);
+      if(!.m.isnan(x)){
+        o.setX(.com.cam.screenX + (.com.CharGameLeft + x) / .com.cam.scale);
+      }
       if(!.m.isnan(y)) o.setY(.com.cam.screenY + y / .com.cam.scale);
     case 5://right
       if(!.m.isnan(x)){
-        o.setX(.com.cam.screenX + ((float).com.GameWidth + x)/.com.cam.scale);
+        o.setX(.com.cam.screenX + (.com.CharGameRight + x) / .com.cam.scale);
       }
       if(!.m.isnan(y)) o.setY(.com.cam.screenY + y / .com.cam.scale);
     case 6:
@@ -4828,11 +4832,11 @@ public &Char
   }
   public float trLeftEdge()
   {
-    ret .com.cam.screenX;
+    ret .com.cam.screenX + .com.CharGameLeft / .com.cam.scale;
   }
   public float trRightEdge()
   {
-    ret .com.cam.screenX + `trGameWidth();
+    ret .com.cam.screenX + .com.CharGameRight / .com.cam.scale;
   }
   public float trTopEdge()
   {
@@ -4844,7 +4848,7 @@ public &Char
   }
   public float trGameWidth()
   {
-    ret (float).com.GameWidth / .com.cam.scale;
+    ret .com.CharGameWidth / .com.cam.scale;
   }
   public float trGameHeight()
   {
@@ -4852,7 +4856,7 @@ public &Char
   }
   public float trScreenWidth()
   {
-    ret (float).com.GameWidth;
+    ret .com.CharGameWidth;
   }
   public float trScreenHeight()
   {
@@ -4895,21 +4899,19 @@ public &Char
       if(facing < 0) obj.facing *= -1;
       branch{
       cond (`facing > 0 && pt == 2) || (`facing < 0 && pt == 3):
-        obj.setX(
-          .com.cam.screenX + (float).com.GameWidth / .com.cam.scale
-          - x * (pt == 2 ? -1.0 : 1.0));
+        obj.setX(`trRightEdge() - x * (pt == 2 ? -1.0 : 1.0));
       else:
-        obj.setX(.com.cam.screenX + x*(pt == 2 ? -1.0 : 1.0));
+        obj.setX(`trLeftEdge() + x*(pt == 2 ? -1.0 : 1.0));
       }
       obj.setY(y);
       obj.facing *= `facing;
     case 4://left
       if(facing < 0) obj.facing *= -1;
-      obj.setX(.com.cam.screenX + x);
+      obj.setX(`trLeftEdge() + x);
       obj.setY(y);
     case 5://right
       if(facing < 0) obj.facing *= -1;
-      obj.setX(.com.cam.screenX + (float).com.GameWidth / .com.cam.scale + x);
+      obj.setX(`trRightEdge() + x);
       obj.setY(y);
     default:
       `setPos!_t?(obj=, pt, x, y, facing);
@@ -5473,8 +5475,8 @@ public void Explod::update(bool oVer, int playerNo)
       screen = true;
       `x =
         `offsetx + (
-          `postype == 4
-          ? -(float).com.GameWidth/2.0 : (float).com.GameWidth/2.0);
+          `postype == 4 ? .com.CharGameLeft - (float).com.GameWidth/2.0
+          : (float).com.GameWidth/2.0 - .com.CharGameLeft);
       `y = `offsety;
     else:
       {
@@ -5526,11 +5528,12 @@ public void Explod::update(bool oVer, int playerNo)
       `bindtime--;
       if(screen && `bindtime == 0) switch(`postype){
       case 4://left
-        `x = .com.cam.screenX + `offsetx / .com.cam.scale;
+        `x =
+          .com.cam.screenX + (.com.CharGameLeft + `offsetx) / .com.cam.scale;
         `y = .com.cam.screenY + `offsety / .com.cam.scale;
       case 5://right
         `x =
-          .com.cam.screenX + ((float).com.GameWidth + `offsetx)/.com.cam.scale;
+          .com.cam.screenX + (.com.CharGameRight + `offsetx) / .com.cam.scale;
         `y = .com.cam.screenY + `offsety / .com.cam.scale;
       }
     }
@@ -6613,10 +6616,12 @@ public float action(
   bool introSkip = false;
   branch{
   cond .com.tickFrame():
-    .com.xmin = .com.cam.screenX + .com.cam.xOffset + .com.screenleft;
+    .com.xmin =
+      .com.cam.screenX + .com.cam.xOffset
+      + (.com.CharGameLeft / .com.cam.scale) + .com.screenleft;
     .com.xmax =
       .com.cam.screenX + .com.cam.xOffset
-      + ((float).com.GameWidth / .com.cam.scale) - .com.screenright;
+      + (.com.CharGameRight / .com.cam.scale) - .com.screenright;
     if(.com.xmin > .com.xmax){
       .com.xmin = .com.xmax = (.com.xmin + .com.xmax) * 0.5;
     }
@@ -6817,14 +6822,12 @@ public float action(
       leftest =
         .m.max!float?(
           (float).m.min!int?(.stg~p1.startx, .stg~p2.startx) * .stg~localscl,
-          -((float).com.GameWidth / 2.0) / .com.cam.baseScale()
-          + .com.screenleft)
+          -(.com.CharGameWidth / 2.0) / .com.cam.baseScale() + .com.screenleft)
         - ox;
       rightest =
         .m.min!float?(
           (float).m.max!int?(.stg~p1.startx, .stg~p2.startx) * .stg~localscl,
-          ((float).com.GameWidth / 2.0) / .com.cam.baseScale()
-          - .com.screenright)
+          (.com.CharGameWidth / 2.0) / .com.cam.baseScale() - .com.screenright)
         - ox;
       introSkip = true;
       .fight~ro.callFight();

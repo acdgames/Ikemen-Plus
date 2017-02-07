@@ -1413,7 +1413,9 @@ public &StateBuilder
       token = `tokenizer(in=);
       branch{
       cond .s.equ("x", token):
-        out .= "((" .= obj .= "sysfvar[.fX]-.com.cam.screenX)*.com.cam.scale)";
+        out .=
+          "((" .= obj .=
+          "sysfvar[.fX]-(.com.cam.screenX+.com.CharGameLeft))*.com.cam.scale)";
       cond .s.equ("y", token):
         out .= "((" .= obj .= "sysfvar[.fY]-.com.cam.screenY)*.com.cam.scale)";
       else:
