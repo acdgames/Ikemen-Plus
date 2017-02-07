@@ -6617,11 +6617,10 @@ public float action(
   branch{
   cond .com.tickFrame():
     .com.xmin =
-      .com.cam.screenX + .com.cam.xOffset
-      + (.com.CharGameLeft / .com.cam.scale) + .com.screenleft;
+      .com.cam.screenX + .com.cam.xOffset + .com.screenleft;
     .com.xmax =
       .com.cam.screenX + .com.cam.xOffset
-      + (.com.CharGameRight / .com.cam.scale) - .com.screenright;
+      + ((float).com.GameWidth / .com.cam.scale) - .com.screenright;
     if(.com.xmin > .com.xmax){
       .com.xmin = .com.xmax = (.com.xmin + .com.xmax) * 0.5;
     }

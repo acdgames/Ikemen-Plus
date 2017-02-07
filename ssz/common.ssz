@@ -373,8 +373,8 @@ public &Camera
     `boundL = (float)(`stg.boundleft - `stg.startx) * `stg.localscl;
     `boundR = (float)(`stg.boundright - `stg.startx) * `stg.localscl;
     `halfWidth = (float).GameWidth / 2.0;
-    `xMin = `boundL - .CharGameWidth * 0.5 / `baseScale();
-    `xMax = `boundR + .CharGameWidth * 0.5 / `baseScale();
+    `xMin = `boundL - `halfWidth / `baseScale();
+    `xMax = `boundR + `halfWidth / `baseScale();
     branch{
     cond `stg.verticalfollow > 0.0:
       `boundH =
@@ -387,7 +387,7 @@ public &Camera
       `boundH = 0.0;
     }
     if(`stg.boundhigh > 0) `boundH += (float)`stg.boundhigh * `stg.localscl;
-    float xminscl = .CharGameWidth / (.CharGameWidth - `boundL + `boundR);
+    float xminscl = (float).GameWidth/((float).GameWidth - `boundL + `boundR);
     float yminscl = (float).GameHeight / (240.0 - .m.min!float?(0.0, `boundH));
     `minScale =
       .m.max!float?(`zoomMin)<, .m.min!float?(`zoomMax)<,
@@ -412,7 +412,7 @@ public &Camera
       y - (`groundLevel() - (float)(.GameHeight - 240) * scl) / `scale
       - `yOffset;
     `x = x;
-    `y = y + (float)(.GameHeight - 240);
+    `y = y;
   }
   /float scaleBound(float scl)
   {
@@ -456,14 +456,12 @@ public &Camera
     branch{
       float tension =
         .m.max!float?(
-          0.0,
-          .CharGameWidth * 0.5 / `scale - (float)`stg.tension * `stg.localscl);
+          0.0, `halfWidth / `scale - (float)`stg.tension * `stg.localscl);
       float tmp = (leftest + rightest) / 2.0;
       float cvx = cvmin + cvmax;
       if(cvx == 0.0 || (cvx < 0.0) == (tmp < 0.0)){
         float vel =
-          .intro > lb.ro.ctrl_time+1 ? .CharGameWidth * 0.5
-          : pause ? 2.0 : 3.0;
+          .intro > lb.ro.ctrl_time+1 ? `halfWidth : pause ? 2.0 : 3.0;
         cvx += vel * (tmp < 0.0 ? -1.0 : 1.0);
       }
       cvx *= .m.min!float?(1.0, .turbo);
@@ -492,7 +490,7 @@ public &Camera
     }
     float foobar =
       (rightest + .screenright) - (leftest - .screenleft)
-      - (.CharGameWidth - 320.0);
+      - ((float).GameWidth - 320.0);
     if(foobar < 0.0) foobar = 0.0;
     foobar =
       .m.max!float?(220.0 / `scale)<,
