@@ -6465,12 +6465,9 @@ void playSound()
 }
 void stopAllSound()
 {
-  if(.sdl.setSndBuf(.snd.sndbuf)){
-    .snd.sndbufClear();
-    .chars:<-:<-[void(c){
-      if(#c > 0) c~sounds:<-[void(s=){s.sound.new(0);}];
-    }];
-  }
+  .chars:<-:<-[void(c){
+    if(#c > 0) c~sounds:<-[void(s=){s.sound.new(0);}];
+  }];
 }
 
 public void charInit(&.Char c=, int no, int idx)
