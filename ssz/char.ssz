@@ -5889,6 +5889,10 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       `pyr.stVal.hb.hitid = hit.id;
       `pyr.stVal.hb.player = hit.player;
     }
+    int numHits = hits;
+    if((#hitting == 1 ? hit.pausetime : hit.guard_pausetime) > 0){
+      numHits = 1;
+    }
     if(hitting > 0){
       if(hitting == 1 && #`pyr.sounds > 0) `pyr.sounds[0].sound.new(0);
       if(`pyr.sysivar[.iBINDTOID] == by.id) `pyr.setBindTime(0);
@@ -5978,7 +5982,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       bool kill = hitting == 1 ? hit.kill : hit.guard_kill;
       `pyr.stVal.hb.damage +=
         `pyr.getDamage(
-          (double)absdamage * (double)hits, kill, false, by.attackmul);
+          (double)absdamage * (double)numHits, kill, false, by.attackmul);
       if(hbset && `pyr.stVal.hb.damage >= `pyr.sysivar[.iLIFE]) branch{
       cond kill || !live:
         `pyr.stVal.hb.fallf = true;
@@ -6126,7 +6130,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
         .stage.envShake.phase = hit.envshake_phase;
         .stage.envShake.setDefPhase();
       }
-      `pyr.getcombo += hit.numhits*hits;
+      `pyr.getcombo += hit.numhits*numHits;
       if(
         hitting > 0 && pro == 0 && `pyr.ls(.lsSCREENBOUND) && (
           (by.facing < 0 && `pyr.sysfvar[.fX] <= `pxmi)
@@ -6396,10 +6400,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
                 hit=, .chars[i]<><>=, proj.hit=,
                 proj.x - .chars[i]<>~sysfvar[.fX],
                 proj.y - .chars[i]<>~sysfvar[.fY],
-                proj.facing, proj.misstime <= 0 && (
-                  #hit == 1 ? proj.hit.pausetime
-                  : proj.hit.guard_pausetime) <= 0
-                ? proj.hits : 1))
+                proj.facing, proj.misstime <= 0 ? proj.hits : 1))
             {
               proj.timemiss = !.m.max!int?(0, proj.misstime);
               branch{
