@@ -3237,7 +3237,7 @@ public &Char
   public void furimuki()
   {
     if(`ctrl && `helperindex == 0){
-      if(`trP2DistX()$.v.toF() >= 0.0) break;
+      if(`trDistX(.players.enemyNear(`=, 0, true))$.v.toF() >= 0.0) break;
       branch{
       cond `stVal.typ == .StTy::S:
         `trChangeAnim(5);
@@ -4626,15 +4626,18 @@ public &Char
   {
     `setFacing(-`facing);
   }
-  public void trP2DistX()
+  public void trDistX(^`self c)
   {
-    ^`self e = `getP2();
-    if(#e == 0){
+    if(#c == 0){
       .v.setSF();
       ret;
     }
-    float dist = (float)`facing * `distX(e<>=);
+    float dist = (float)`facing * `distX(c<>=);
     .v.setF(`stMver0() == 1 ? dist : (float)(int)dist);
+  }
+  public void trP2DistX()
+  {
+    `trDistX(`getP2());
   }
   public void trP2DistY()
   {
@@ -4675,12 +4678,7 @@ public &Char
   public void trParentDistX()
   {
     `trParent();
-    if(#.c == 0){
-      .v.setSF();
-      ret;
-    }
-    float dist = (float)`facing * `distX(.c<>=);
-    .v.setF(`stMver0() == 1 ? dist : (float)(int)dist);
+    `trDistX(.c);
   }
   public void trParentDistY()
   {
@@ -4741,20 +4739,11 @@ public &Char
   public bool trPName(int no, ^/char name)
   {:<-
     if(no <= 0 || #.chars < no) ret false;
-    void addSorted(%index sorted=, int c)
-    {
-      loop{index i = 0; while; do:
-        if(
-          (!.chars[c]<>~isHouchied() && .chars[sorted[i]]<>~isHouchied()) || (
-            .chars[c]<>~isHouchied() == .chars[sorted[i]]<>~isHouchied()
-            && #`distX(.chars[c]<><>=) < #`distX(.chars[sorted[i]]<><>=)))
-        {
-          .insIL(sorted=, i, c);
-          ret;
-        }
-        i++;
-      while i < #sorted:}
-      sorted .= c;
+    if((no & 1) == 0){
+      ^`self e = .players.enemyNear(`=, (no >> 1) - 1, true);
+      ret
+        #e > 0 && !(e~isKO() && e~sf(.sfOVER))
+        && .s.equ(name, .cgi[e~playerno].nameLow);
     }
     int foo;
     branch{
@@ -4765,32 +4754,10 @@ public &Char
       else:
         foo = ((no - 1) - 2) + (`playerno & 1);
       }
-    cond no == 2:
-      {
-        ^`self e = `getP2();
-        ret #e > 0 && .s.equ(name, .cgi[e~playerno].nameLow);
-      }
     else:
       foo = (no - 1) ^ (`playerno & 1);
-      if((no & 1) == 0) loop{
-        int i = foo & 1;
-        %index sorted;
-        while;
-      do:
-        if(#.chars[i] > 0) addSorted(sorted=, i);
-        i += 2;
-      while i < #.chars:
-        if(#sorted <= foo >> 2) ret false;
-        foo = sorted[foo >> 2];
-      }
     }
-    if(
-      #.chars[foo] == 0
-      || (no == 2 && .chars[foo]<>~isKO() && .chars[foo]<>~sf(.sfOVER)))
-    {
-      ret false;
-    }
-    ret .s.equ(name, .cgi[foo].nameLow);
+    ret #.chars[foo] > 0 && .s.equ(name, .cgi[foo].nameLow);
   }
   public bool trAuthor(^/char name)
   {
