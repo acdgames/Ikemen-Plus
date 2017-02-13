@@ -322,8 +322,7 @@ void recvThread(^&.soc.Socket s, ^&.KeyBuffer k, ^|.NetState st)
       int tmp;
     do:
       if(!s~recv!int?(tmp=)) break;
-    while tmp != -1:
-    }
+    while tmp != -1:}
   }
 }
 
@@ -331,8 +330,7 @@ void acceptThread(^&.soc.Socket liso, ^&.soc.Socket s, ^bool cansel)
 {
   loop{do:
     if(liso~accept(s<>=, 1, true)) break;
-  while !cansel<>:
-  }
+  while !cansel<>:}
   liso~close();
 }
 
@@ -346,8 +344,7 @@ void connectThread(^&.soc.Socket s, ^/char serv, ^/char port, ^bool cansel)
       if(s~connect(serv, port, 30, true)) break, break;
     }
     .th.sleep(0x1000);
-  while !cansel<>:
-  }
+  while !cansel<>:}
 }
 
 public &NetInput
@@ -392,8 +389,7 @@ public &NetInput
         ge = i;
       }
       i++;
-    while i < #.com.com:
-    }
+    while i < #.com.com:}
     if(ho < 0) ho = 0;
     if(ge < 0) ge = (ho+1) % #.com.com;
   }
@@ -472,8 +468,7 @@ public &NetInput
     loop{index i = 0; while; do:
       if(`kb[i].data[`kb[i].timec&31].anybutton()) ret true;
       i++;
-    while i < #`kb:
-    }
+    while i < #`kb:}
     ret false;
   }
   public bool update()
@@ -496,8 +491,7 @@ public &NetInput
       continue:
         foo = .m.min!int?(`kb[`lo].times, `kb[`re].times);
         branch{
-          int tmp =
-            (`kb[`re].timei + (`delay >> 3)) - `kb[`lo].timei;
+          int tmp = (`kb[`re].timei + (`delay >> 3)) - `kb[`lo].timei;
         cond tmp >= 0:
           `kb[`lo].localUpdate(0);
           if(`delay > 0) `delay--;
@@ -510,8 +504,7 @@ public &NetInput
         loop{index i = 0; while; do:
           `rep.write!&.KeyInfo?(`kb[i].data[`time&31]=);
           i++;
-        while i < #`kb:
-        }
+        while i < #`kb:}
         if(++`time >= foo) `kb[`lo].localUpdate(0);
       }
     case .NetState::End, .NetState::Error:
@@ -553,8 +546,7 @@ public &FileInput
     loop{index i = 0; while; do:
       if(`ki[i].anybutton()) ret true;
       i++;
-    while i < #`ki:
-    }
+    while i < #`ki:}
     ret false;
   }
   public bool update()
@@ -711,8 +703,7 @@ public &Command
       loop{while; do:
         if(!.str.cMatch!char?(.str.blank, s[i])) ret s[i];
         i++;
-        while i < #s:
-      }
+      while i < #s:}
       ret '\0';
     }
     `cmd.new(0);
@@ -845,8 +836,7 @@ public &Command
           //error
         }
         i++;
-        while i < #cmds[j]:
-      }
+      while i < #cmds[j]:}
       if(
         #`cmd >= 2 && `cmd[-1].isDirection()
         && `cmd[#`cmd - 2].isDirection())
@@ -878,8 +868,7 @@ public &Command
           ret true;
         }
         i++;
-      while i < #cmd1.key:
-      }
+      while i < #cmd1.key:}
       ret false;
     }
     if(cmd2.slash) ret false;
@@ -1060,7 +1049,7 @@ public &Command
   {
     `name = c.name;
     `hold = c.hold;
-    `held = c.held;
+    `held = .str.clone!bool?(c.held);
     `cmd = c.cmd;
     `cmdidx = c.cmdidx;
     `tameidx = c.tameidx;
@@ -1209,8 +1198,7 @@ bool anyHardButton()
         || .sdl.JoystickButtonState(:jn, .cfg.in[i].y:)
         || .sdl.JoystickButtonState(:jn, .cfg.in[i].z:))) ret true;
     i++;
-  while i < #.cfg.in:
-  }
+  while i < #.cfg.in:}
   ret false;
 }
 
