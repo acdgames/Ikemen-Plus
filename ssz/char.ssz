@@ -2184,14 +2184,6 @@ public &Char
   void clearMoveHit()
   {
     `stVal.mctime = 0;
-    if(`helperindex == 0) loop{
-      index i = 0;
-      *.projs<>.self pj = .projs[`playerno];
-      while;
-    do:
-      if(pj[i].id < 0) pj[i].id = .com.IERR;
-      i++;
-    while i < #pj:}
   }
   void clearHitCount()
   {
