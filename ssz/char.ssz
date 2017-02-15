@@ -3914,6 +3914,7 @@ public &Char
     }];
     .players.destroy(`id);
     `helperindex = -1;
+    `sysivar[.iSPECIALFLAG] |= .lsDESTROY;
   }
   public void setPosX(float x)
   {
