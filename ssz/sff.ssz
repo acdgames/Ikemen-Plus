@@ -857,13 +857,24 @@ public &FrameMethods<_t>
       `salpha = 0d1;
       `dalpha = 0d255;
     cond @s.equ(a[0..2], "as"):
-      {
-        index di = @s.find("d", a);
-        if(di < 0) break;
-        ushort tmp = .com.aton!ushort?(a[2..di]);
-        `salpha = (tmp > 0d255 ? 0d255 : tmp);
-        tmp = .com.aton!ushort?(a[di+1..-1]);
-        `dalpha = (tmp > 0d255 ? 0d255 : tmp);
+      if(a[2] >= '0' && a[2] <= '9'){
+        index i = 2;
+        uint alp = 0x0;
+        loop{do:
+          alp = alp * 0d10 + (uint)(a[i] - '0');
+          i++;
+        while a[i] >= '0' && a[i] <= '9' && i < #a:
+          alp &= 0x3fff;
+          `salpha = (alp > 0d255 ? 0d255 : alp);
+        }
+        alp = 0x0;
+        if(a[i++] == 'd' && a[i] >= '0' && a[i] <= '9') loop{do:
+          alp = alp * 0d10 + (uint)(a[i] - '0');
+          i++;
+        while a[i] >= '0' && a[i] <= '9' && i < #a:
+          alp &= 0x3fff;
+          `dalpha = (alp > 0d255 ? 0d255 : alp);
+        }
         branch{
         cond `salpha == 0d1 && `dalpha == 0d255: `salpha = 0d0;
         cond `salpha == 0d255 && `dalpha == 0d1: `dalpha = 0d0;
