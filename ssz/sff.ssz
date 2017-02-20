@@ -1165,6 +1165,7 @@ public &Anim<frame_t>
       branch{
       cond `dalpha < 0:
         da = ((uint)!`dalpha + `frames[`drawidx].dalpha) >> 0x1;
+        if(sa == 0d1 && da == 0d255) sa = 0d0;
       else:
         da = (ubyte)`dalpha;
       }
