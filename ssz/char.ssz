@@ -230,7 +230,7 @@ public void drawShadowList(float x, float y, float scl)
         int alpha = ss.alpha;
         branch{
           float y = ss.as~y - ss.fadeoffset;
-        cond .stg~sdw.fadebgn >= .stg~sdw.fadeend:
+        cond .stg~sdw.fadebgn <= .stg~sdw.fadeend:
         cond y <= (float).stg~sdw.fadeend * .stg~localscl:
           ret;
         cond y < (float).stg~sdw.fadebgn * .stg~localscl:
