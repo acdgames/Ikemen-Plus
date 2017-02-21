@@ -2933,7 +2933,7 @@ void drawQuads(
 			(
 				pers > 1.0
 				? (1-1/(pers*pers))*abs(x3-x4) : (1-(pers*pers))*abs(x1-x2))
-			* (g_h>>6) / (abs(y1-y4) + (g_h>>6)));
+			* (g_h>>5) / (abs(y1-y4) + (g_h>>5)));
 	for(int i = 1; i < n; i++){
 		glTexCoord2f((float)i/n, 1);
 		glVertex2f(x1 + (x2 - x1)*i/n, y1 + (y2 - y1)*i/n);
