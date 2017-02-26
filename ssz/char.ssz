@@ -2978,7 +2978,9 @@ public &Char
       `sysivar[.iHITPAUSETIME] = 0;
       if(`ho >= 0 && `stVal.ho[`ho].forceair != 0) `stVal.typ = .StTy::A;
       branch{
-        int pn = `stVal.hb.p2getp1state ? `stVal.hb.player : `playerno;
+        int pn =
+          `stVal.hb.p2getp1state && !`stVal.hb.guarded
+          ? `stVal.hb.player : `playerno;
       cond `cs1tmp:
         `stVal.prevno = 0;
       cond `stVal.typ == .StTy::L:
