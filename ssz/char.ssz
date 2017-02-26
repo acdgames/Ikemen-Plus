@@ -2836,6 +2836,8 @@ public &Char
           }
           break, else;
         }
+      cond hit.reversal_attr > 0:
+        break;
       cond hit.priority < `stVal.hit.priority:
       cond hit.priority == `stVal.hit.priority:
         branch{
