@@ -99,7 +99,7 @@ public void addAnimList(
     as~screen = `scr;
     as~xscl = `xs;
     as~yscl = `ys;
-    as~angle = `an;
+    as~angle = (`ax < 0.0) == (`ay < 0.0) ? `an : -`an;
     as~oVer = `oVer;
     as~bright = `b;
     as~axscl = `ax;
