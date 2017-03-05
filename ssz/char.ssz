@@ -99,7 +99,7 @@ public void addAnimList(
     as~screen = `scr;
     as~xscl = `xs;
     as~yscl = `ys;
-    as~angle = (`ax < 0.0) == (`ay < 0.0) ? `an : -`an;
+    as~angle = `an;
     as~oVer = `oVer;
     as~bright = `b;
     as~axscl = `ax;
@@ -3094,7 +3094,8 @@ public &Char
       float an;
       branch{
       cond `ls(.lsANGLEDRAW):
-        an = `sysfvar[.fANGLE] == 0.0 ? 360.0 : `sysfvar[.fANGLE];
+        an = `sysfvar[.fANGLE] == 0.0 ? 360.0
+        : `facing > 0 ? `sysfvar[.fANGLE] : -`sysfvar[.fANGLE];
       else:
         an = 0.0;
       }
@@ -5479,7 +5480,7 @@ public void Explod::update(bool oVer, int playerNo)
       .addAnimList(
         a=, `ani, `sprpriority, `x, `y, screen,
         (float)`facing*`scalex, (float)`vfacing*`scaley,
-        `scalex < 0.0 == `scaley < 0.0 ? `angle : -`angle,
+        `facing < 0 == `vfacing < 0 ? `angle : -`angle,
         oVer, 1.0, 1.0, `alphas < 0 ? (int)-1 : `alphas,
         `alphad, playerNo == .superplayer,
         pfx, `shadowr<<16 | (`shadowg&255)<<8 | (`shadowb&255),

@@ -1300,7 +1300,6 @@ public &Anim<frame_t>
     `exParam(`frames[`drawidx]=, h=, v=, agl=);
     float rx = x+xs*h*(float)`frames[`drawidx].x+(float).com.GameWidth/2.0;
   /?/*.cfg.OpenGL:
-    agl *= (float)((xs < 0.0 ? -1: 1) * (ys < 0.0 ? -1: 1));
     `spr~glDraw(
       `palFoo(fx), `mask, #(xs*h)*(float)`spr~rct.x*.com.WidthScale,
       #(ys*v)*(float)`spr~rct.y*.com.HeightScale, `tile=,
@@ -1316,7 +1315,6 @@ public &Anim<frame_t>
         1.0, 1.0, xs, xs, ys, 0.0, (float).com.GameWidth/2.0, fx, false);
         ret;
     }
-    agl *= (float)((xs < 0.0 ? -1: 1) * (ys < 0.0 ? -1: 1));
     .m.limRange!float?(xs=, -16000.0/.com.WidthScale, 16000.0/.com.WidthScale);
     .m.limRange!float?(
       ys=, -16000.0/.com.HeightScale, 16000.0/.com.HeightScale);
@@ -1340,7 +1338,6 @@ public &Anim<frame_t>
     `exParam(`frames[`drawidx]=, h=, v=, agl=);
     float x2 = x + xs*h*(float)`frames[`drawidx].x;
     float y2 = y + ys*vscale*v*(float)`frames[`drawidx].y;
-    agl *= (float)((xs < 0.0 ? -1: 1) * (ys < 0.0 ? -1: 1));
   /?/*.cfg.OpenGL:
     if(color != 0x0 && `spr~rle != -12) loop{index i = 0; do:
       .com.tmppl[i] = color;
