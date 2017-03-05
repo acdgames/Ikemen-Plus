@@ -258,7 +258,7 @@ public void drawShadowList(float x, float y, float scl)
         .com.cam.groundLevel() + .com.cam.yOffset - .stage.envShake.getOffset()
         - (y + ss.as~y * syscl - ss.offsety) * scl,
         scl * ss.as~xscl * ss.as~axscl, scl * -ss.as~yscl * ss.as~ayscl,
-        syscl, ss.as~angle*(.m.PI/180.0), .stage.bgPalFX, ss.as~oVer,
+        syscl, -ss.as~angle*(.m.PI/180.0), .stage.bgPalFX, ss.as~oVer,
         (uint)color, intensity);
     }];
   continue:
@@ -294,7 +294,7 @@ public void drawReflection(float x, float y, float scl)
           .com.cam.groundLevel() + .com.cam.yOffset
           - .stage.envShake.getOffset() - (y + ss.as~y - ss.offsety) * scl,
           scl * ss.as~xscl * ss.as~axscl, scl * -ss.as~yscl * ss.as~ayscl,
-          ss.as~angle*(.m.PI/180.0), ss.as~fx, ss.as~oVer);
+          -ss.as~angle*(.m.PI/180.0), ss.as~fx, ss.as~oVer);
       else:
         ss.as~anim~ani.draw(
           .com.scrrect=, .com.cam.xOffset / scl - (x - ss.as~x),
