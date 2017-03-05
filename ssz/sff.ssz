@@ -1295,11 +1295,11 @@ public &Anim<frame_t>
   {
     if(#`spr == 0 || #`spr~pxl == 0) ret;
     float h = (float)`frames[`drawidx].h, v = (float)`frames[`drawidx].v;
-    float xs = xscale, ys = yscale;
-    float agl = angle;
+    float xs = xscale, ys = yscale, agl = 0.0;
     `exParam(`frames[`drawidx]=, h=, v=, agl=);
     float rx = x+xs*h*(float)`frames[`drawidx].x+(float).com.GameWidth/2.0;
   /?/*.cfg.OpenGL:
+    agl += angle;
     `spr~glDraw(
       `palFoo(fx), `mask, #(xs*h)*(float)`spr~rct.x*.com.WidthScale,
       #(ys*v)*(float)`spr~rct.y*.com.HeightScale, `tile=,
@@ -1308,8 +1308,8 @@ public &Anim<frame_t>
       .com.scrrect=, rx*.com.WidthScale,
       (y+ys*v*(float)`frames[`drawidx].y)*.com.HeightScale, fx);
   /*true:
-    uint uagl = (uint)((512.0/.m.PI)*agl + 0.5) & 0x3ff;
-    if(uagl == 0x0 && agl == angle){
+    uint uagl = (uint)((512.0 / .m.PI) * (angle + agl) + 0.5) & 0x3ff;
+    if(uagl == 0x0 && agl == 0.0){
       `draw(
         .com.scrrect=, x - xs*h*(float)`frames[`drawidx].x, y,
         1.0, 1.0, xs, xs, ys, 0.0, (float).com.GameWidth/2.0, fx, false);
