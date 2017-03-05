@@ -1315,16 +1315,18 @@ public &Anim<frame_t>
         1.0, 1.0, xs, xs, ys, 0.0, (float).com.GameWidth/2.0, fx, false);
         ret;
     }
+    xs *= h;
+    ys *= v;
     .m.limRange!float?(xs=, -16000.0/.com.WidthScale, 16000.0/.com.WidthScale);
     .m.limRange!float?(
       ys=, -16000.0/.com.HeightScale, 16000.0/.com.HeightScale);
     .sdl.renderMugenZoom(
       .com.scrrect=, rx*.com.WidthScale,
-      (y+ys*v*(float)`frames[`drawidx].y)*.com.HeightScale,
+      (y+ys*(float)`frames[`drawidx].y)*.com.HeightScale,
       `spr~pxl, `palFoo(fx), `mask, `spr~rct=,
-      #(xs*h)*(float)`spr~rct.x*.com.WidthScale,
-      #(ys*v)*(float)`spr~rct.y*.com.HeightScale, `tile=,
-      xs*h*.com.WidthScale, xs*h*.com.WidthScale, ys*v*.com.HeightScale,
+      #xs*(float)`spr~rct.x*.com.WidthScale,
+      #ys*(float)`spr~rct.y*.com.HeightScale, `tile=,
+      xs*.com.WidthScale, xs*.com.WidthScale, ys*.com.HeightScale,
       0.0, uagl, `alphaFoo(), `spr~rle, `spr~pluginbuf=);
   /*?*/
   }
@@ -1333,11 +1335,11 @@ public &Anim<frame_t>
     ^&.com.PalFX fx, bool oVer, uint color, int alpha)
   {
     if(#`spr == 0 || #`spr~pxl == 0) ret;
-    float h = (float)`frames[`drawidx].h, v = (float)`frames[`drawidx].v;
-    float xs = xscale, ys = yscale, agl = angle;
-    `exParam(`frames[`drawidx]=, h=, v=, agl=);
-    float x2 = x + xs*h*(float)`frames[`drawidx].x;
-    float y2 = y + ys*vscale*v*(float)`frames[`drawidx].y;
+    float xs = xscale * (float)`frames[`drawidx].h;
+    float ys = yscale * (float)`frames[`drawidx].v, agl = angle;
+    `exParam(`frames[`drawidx]=, xs=, ys=, agl=);
+    float x2 = x + xs*(float)`frames[`drawidx].x;
+    float y2 = y + ys*vscale*(float)`frames[`drawidx].y;
   /?/*.cfg.OpenGL:
     if(color != 0x0 && `spr~rle != -12) loop{index i = 0; do:
       .com.tmppl[i] = color;
@@ -1346,20 +1348,20 @@ public &Anim<frame_t>
       `spr~rle == -12 ? [void(int alp){
         .sdl.RenderMugenGlFcS(:
           `spr~pxl<>, `spr~rct=,
-          #(xs*h)*(float)`spr~rct.x*.com.WidthScale,
-          #(ys*v)*(float)`spr~rct.y*.com.HeightScale, `tile=,
-          xs*h*.com.WidthScale, xs*h*.com.WidthScale,
-          ys*v*.com.HeightScale, vscale, 0.0, agl,
+          #xs*(float)`spr~rct.x*.com.WidthScale,
+          #ys*(float)`spr~rct.y*.com.HeightScale, `tile=,
+          xs*.com.WidthScale, xs*.com.WidthScale,
+          ys*.com.HeightScale, vscale, 0.0, agl,
           alp, .com.scrrect=, (x2+(float).com.GameWidth/2.0)*.com.WidthScale,
           y2*.com.HeightScale, color:);
       }]
       : [void(int alp){
         .sdl.RenderMugenGl(:
           `spr~pxl<>, .com.tmppl<>=, `mask, `spr~rct=,
-          #(xs*h)*(float)`spr~rct.x*.com.WidthScale,
-          #(ys*v)*(float)`spr~rct.y*.com.HeightScale, `tile=,
-          xs*h*.com.WidthScale, xs*h*.com.WidthScale,
-          ys*v*.com.HeightScale, vscale, 0.0, agl,
+          #xs*(float)`spr~rct.x*.com.WidthScale,
+          #ys*(float)`spr~rct.y*.com.HeightScale, `tile=,
+          xs*.com.WidthScale, xs*.com.WidthScale,
+          ys*.com.HeightScale, vscale, 0.0, agl,
           alp, .com.scrrect=, (x2+(float).com.GameWidth/2.0)*.com.WidthScale,
           y2*.com.HeightScale:);
       }];
@@ -1373,9 +1375,9 @@ public &Anim<frame_t>
     .sdl.renderMugenShadow(
       .com.scrrect=, (x2+(float).com.GameWidth/2.0)*.com.WidthScale,
       y2*.com.HeightScale, `spr~pxl, color, `spr~rct=,
-      #(xs*h)*(float)`spr~rct.x*.com.WidthScale,
-      #(ys*v)*(float)`spr~rct.y*.com.HeightScale,
-      xs*h*.com.WidthScale, ys*v*.com.HeightScale, vscale,
+      #xs*(float)`spr~rct.x*.com.WidthScale,
+      #ys*(float)`spr~rct.y*.com.HeightScale,
+      xs*.com.WidthScale, ys*.com.HeightScale, vscale,
       uagl, alpha, `spr~rle, `spr~pluginbuf=);
   /*?*/
   }
