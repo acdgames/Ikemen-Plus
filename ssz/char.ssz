@@ -3884,7 +3884,7 @@ public &Char
   }
   public bool canCtrl()
   {
-    ret `ctrl && !`isKO() && !`ctrlOver();
+    ret `ctrl && !`ctrlOver();
   }
   public void setCtrl(bool c)
   {
