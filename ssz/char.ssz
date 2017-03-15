@@ -2953,7 +2953,18 @@ public &Char
   {
     if(`acttmp > 0 && #`ani > 0) `ani~ani.action();
     `tickBind();
-    if(#`cmd == 0) `cmd = .chars[`playerno][0]~cmd;
+    if(#`cmd == 0) branch{
+    cond `keyctrl:
+      `cmd.new(#.chars);
+      `cmd~buffer.new(1);
+      loop{index i = 0; do:
+        `cmd[i].buffer = `cmd~buffer;
+        `cmd[i].copyList(.chars[`playerno][0]~cmd[i]=);
+        `cmd[i].bufReset();
+      while ++i < #`cmd:}
+    else:
+      `cmd = .chars[`playerno][0]~cmd;
+    }
     branch{
     cond `stVal.hitdefContact != 0:
       if(`stVal.hit.hitonce != 0 || `trMoveReversed() != 0){
@@ -4586,7 +4597,11 @@ public &Char
       ^/char name = cl~name;
       if(
         `helperindex == 0 && #cl~cmd == 1 && #cl~cmd~key == 1
-        && (int)cl~cmd~slash == #cl~hold) break;
+        && (int)cl~cmd~slash == #cl~hold)
+      {
+        if(`helperindex != 0) ret false;
+        break, break;
+      }
       ret i == `cpucmd;
     }
     loop{index i = 0; while; do:
@@ -6523,21 +6538,26 @@ void commandUpdate()
         {
           r.furimuki();
         }
-        if(r.cmd~input(r.key, r.facing)) loop{
-          index i = 0;
-          bool hp = r.isHitPaused();
-          int buftime = (int)(hp && r.mver0() != 1);
-          branch{
-          cond .super > 0:
-            if(!act && .super <= .superendcmdbuftime) hp = true;
-          cond .pause > 0:
-            if(!act && .pause <= .pauseendcmdbuftime) hp = true;
-          }
-          while;
-        do:
-          r.cmd[i].step(r.facing, r.key < 0, hp, buftime + (int)hp);
-          i++;
-        while i < #r.cmd:}
+        p:<-:<-[void(c=){
+          if(
+            (c.helperindex == 0 || c.helperindex > 0 && c.cmd != r.cmd)
+            && c.cmd~input(c.key, c.facing)) loop
+          {
+            index i = 0;
+            bool hp = c.isHitPaused();
+            int buftime = (int)(hp && c.mver0() != 1);
+            branch{
+            cond .super > 0:
+              if(!act && .super <= .superendcmdbuftime) hp = true;
+            cond .pause > 0:
+              if(!act && .pause <= .pauseendcmdbuftime) hp = true;
+            }
+            while;
+          do:
+            c.cmd[i].step(c.facing, c.key < 0, hp, buftime + (int)hp);
+            i++;
+          while i < #c.cmd:}
+        }];
         if(r.key < 0){
           index cc =
             r.roundState() == 2 && .m.rand(0, .com.com[i]+16) > 16
