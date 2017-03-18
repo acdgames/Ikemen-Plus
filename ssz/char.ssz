@@ -3780,7 +3780,7 @@ public &Char
       `sysivar[.iSUPERMOVETIME]--;
     }
     if(unhittable){
-      .cgi[`playerno].unhittable = pausetime + (int)(pausetime > 1);
+      .cgi[`playerno].unhittable = pausetime + (int)(pausetime > 0);
     }
   }
   void setHitdefDefault(&.Hitdef h=, bool proj)
