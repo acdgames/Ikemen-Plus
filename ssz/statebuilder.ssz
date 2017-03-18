@@ -5359,12 +5359,10 @@ public &StateBuilder
     ret `stateSec(param=,[bool(){
       `state.ctrlList[-1].task .=
         .sndstart
-        .= "int t=30,mt=0;"
+        .= "int t=30,mt=0;bool uh=true;"
         ".superanim=.fight~getAction(30);.superfacing=`facing;"
         ".superposx=`sysfvar[.fX];.superposy=`sysfvar[.fY];"
-        ".superdarken=1;"
-        ".superp2defmul=.cfg.Super_TargetDefenceMul;"
-        ".superunhittable=1;"
+        ".superdarken=1;.superp2defmul=.cfg.Super_TargetDefenceMul;"
         ".superpausebg=1;.superendcmdbuftime=0;";
       if(!`stateParam(param=, "time", [`paraF_t(data=){
         if(
@@ -5454,8 +5452,7 @@ public &StateBuilder
       if(!`stateParam(param=, "unhittable", [`paraF_t(data=){
         if(
           !`fullExpression(
-            `state.ctrlList[-1].task=, data=,
-            ".superunhittable=(int)(", ");", 3)) ret false;
+            `state.ctrlList[-1].task=, data=, "uh=", ";", 3)) ret false;
         ret true;
       }])) ret false;
       if(!`stateParam(param=, "sound", [`paraF_t(data=){
@@ -5480,7 +5477,7 @@ public &StateBuilder
         }
         ret true;
       }])) ret false;
-      `state.ctrlList[-1].task .= "`setSuperPauseTime(t,mt);" .= .sndend;
+      `state.ctrlList[-1].task .= "`setSuperPauseTime(t,mt,uh);" .= .sndend;
       ret true;
     }]);
   }

@@ -1508,6 +1508,7 @@ public &CharGlobalInfo
   public short mver0 = 0, mver1 = 0;
   public |.ProjContact pctyp;
   public int pctime, pcid;
+  public int unhittable;
   new()
   {
     `clearPCTime();
@@ -1539,7 +1540,6 @@ float superposx = 0.0, superposy = 0.0;
 int superfacing = 1;
 int superdarken = 1;
 float superp2defmul = 1.0;
-int superunhittable = 1;
 /int envcol_time = 0;
 /int envcol_under = 0;
 int envcol_r = 255;
@@ -2785,9 +2785,7 @@ public &Char
   }
   public bool attrCheck(&.Hitdef hit=, int cid, |.StTy styp)
   {
-    if(
-      .super > 0 && .superunhittable != 0
-      && `playerno == .superplayer) ret false;
+    if(.cgi[`playerno].unhittable > 0) ret false;
     if(hit.chainid >= 0 && `stVal.hb.hitid != hit.chainid) ret false;
     if(#`stVal.hb.by > 0 && `stVal.hb.by[-1].id == cid){
       if(hit.nochainid1 >= 0 && `stVal.hb.hitid == hit.nochainid1) ret false;
@@ -3763,7 +3761,7 @@ public &Char
       `sysivar[.iPAUSEMOVETIME]--;
     }
   }
-  void setSuperPauseTime(int pausetime, int movetime)
+  void setSuperPauseTime(int pausetime, int movetime, bool unhittable)
   {
     if(
       !pausetime < .supertime || `playerno != `stVal.playerno
@@ -3780,6 +3778,9 @@ public &Char
       `sysivar[.iSUPERMOVETIME] = 0;
     cond .super > 0 && `sysivar[.iSUPERMOVETIME] > 0:
       `sysivar[.iSUPERMOVETIME]--;
+    }
+    if(unhittable){
+      .cgi[`playerno].unhittable = pausetime + (int)(pausetime > 1);
     }
   }
   void setHitdefDefault(&.Hitdef h=, bool proj)
@@ -6424,6 +6425,7 @@ public void PlayerList!&Char?::getHit()
 public void PlayerList!&Char?::tick()
 {
   .com.gametime++;
+  .cgi:<-[void(gi=){if(gi.unhittable > 0) gi.unhittable--;}];
   loop{
     *`top.self p = `top;
     while;
@@ -7214,6 +7216,7 @@ public void nextRound()
         }
       }
       .cgi[c.playerno].clearPCTime();
+      .cgi[c.playerno].unhittable = 0;
     }];
   continue:
     i++;
