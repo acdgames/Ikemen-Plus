@@ -6117,8 +6117,12 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       `pyr.getcombo += hit.numhits*numHits;
       if(
         hitting > 0 && pro == 0 && `pyr.ls(.lsSCREENBOUND) && (
-          (by.facing < 0 && `pyr.sysfvar[.fX] <= `pxmi)
-          || (by.facing > 0 && `pyr.sysfvar[.fX] >= `pxma))
+          (
+            by.facing < 0 && `pyr.sysfvar[.fX]
+            <= `pxmi + ((float)(by.stMver0() != 1) + 1.0) * 2.0)
+          || (
+            by.facing > 0 && `pyr.sysfvar[.fX]
+            >= `pxma - ((float)(by.stMver0() != 1) + 1.0) * 2.0))
         ) switch(`pyr.stVal.typ)
       {
       case .StTy::S, .StTy::C:
@@ -6131,8 +6135,12 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
     else:
       if(
         hitting > 0 && pro == 0 && `pyr.ls(.lsSCREENBOUND) && (
-          (by.facing < 0 && `pyr.sysfvar[.fX] <= `pxmi)
-          || (by.facing > 0 && `pyr.sysfvar[.fX] >= `pxma))
+          (
+            by.facing < 0 && `pyr.sysfvar[.fX]
+            <= `pxmi + ((float)(by.stMver0() != 1) + 1.0) * 2.0)
+          || (
+            by.facing > 0 && `pyr.sysfvar[.fX]
+            >= `pxma - ((float)(by.stMver0() != 1) + 1.0) * 2.0))
         ) switch(`pyr.stVal.typ)
       {
       case .StTy::S, .StTy::C:
