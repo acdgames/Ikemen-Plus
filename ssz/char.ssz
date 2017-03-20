@@ -3539,9 +3539,9 @@ public &Char
         `destroySelf();
         ret;
       }
+      if(!`isPaused() && !`isBound()) `bind();
       if(`acttmp > 0){
         if(#`ani > 0) `ani~ani.updateSprite();
-        if(!`isBound()) `bind();
         if(`stVal.mov == .MovTy::H){
           if(`stVal.hb.xoff != 0.0){
             `setPosX(`sysfvar[.fX] + `stVal.hb.xoff);
