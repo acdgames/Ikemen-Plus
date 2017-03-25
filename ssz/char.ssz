@@ -5455,6 +5455,9 @@ public void Explod::update(bool oVer, int playerNo)
   branch{
   cond `bindtime != 0:
     branch{
+    cond `postype == 6:
+      `x = `offsetx;
+      `y = `offsety;
     cond `postype >= 4:
       screen = true;
       `x =
