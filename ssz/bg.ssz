@@ -541,7 +541,7 @@ public &BGCtrl
       if(#val < 2) break;
       `v2 = val[1];
       if(#val < 3) break;
-      `v3 = val[1];
+      `v3 = val[2];
       `x = .com.atof(data);
     }
     if(xy && #(data = sc.get("x")) > 0){
