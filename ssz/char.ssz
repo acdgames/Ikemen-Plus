@@ -4569,7 +4569,7 @@ public &Char
   }
   public void trChangeState2(int n, int p, int anim, int ctrl)
   {
-    if(`minus <= 0 && (`stVal.typ == .StTy::S || `stVal.typ == .StTy::C)){
+    if(!`ls(.lsNOAUTOTURN) && `minus <= 0 && (`stVal.typ == .StTy::S || `stVal.typ == .StTy::C)){
       `furimuki();
     }
     if(anim >= 0) `trChangeAnim(anim);
