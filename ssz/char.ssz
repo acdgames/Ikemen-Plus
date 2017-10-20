@@ -2057,7 +2057,7 @@ public &Char
   public int animno;
   public int getcombo;
   public float frontw, backw, fedge, bedge;
-  public float attackmul, defencemul, attackdist;
+  public float attackmul, attackmult, defencemul, defencemult, attackdist;
   public float offsetx, offsety;
   public float veloff;
   public float ticOldX, drawX, ticOldY, drawY;
@@ -2146,7 +2146,9 @@ public &Char
     `backw = `defBW();
     `fedge = `bedge = 0.0;
     `attackmul = (float)`sysivar[.iATTACK] / 100.0;
+	`attackmult = 1.0;
     `defencemul = (float)`sysivar[.iDEFENCE] / 100.0;
+	`defencemult = 1.0;
     `enemynClear();
     `targets.new(0);
     `cpucmd = -1;
@@ -3684,7 +3686,7 @@ public &Char
     ret
       (int).m.min!_t?((*_t)(.m.max!int?(0, `sysivar[.iLIFE]-(int)!kill)))<,
       .m.max!_t?((*_t)(`sysivar[.iLIFE]-`sysivar[.iLIFEMAX]))<,
-      .m.ceil(damage*(absolute ? 1.0 : atkmul/`defencemul));
+      .m.ceil(damage*(absolute ? 1.0 : atkmul/`defencemul*`defencemult));
   }
   public void addLife(double l, bool kill, bool absolute)
   {
@@ -5968,7 +5970,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       bool kill = hitting == 1 ? hit.kill : hit.guard_kill;
       `pyr.stVal.hb.damage +=
         `pyr.getDamage(
-          (double)absdamage, kill, false, by.attackmul);
+          (double)absdamage, kill, false, by.attackmul*by.attackmult);
       if(hbset && `pyr.stVal.hb.damage >= `pyr.sysivar[.iLIFE]) branch{
       cond kill || !live:
         `pyr.stVal.hb.fallf = true;

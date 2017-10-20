@@ -5848,8 +5848,7 @@ public &StateBuilder
         if(
           !`fullExpression(
             `state.ctrlList[-1].task=, data=,
-            "`attackmul=((float)`sysivar[.iATTACK]/100.0)*",
-            ";", 1)) ret false;
+            "`attackmult=" , ";", 1)) ret false;
         ret true;
       }])) ret false;
       if(!value){
@@ -5868,8 +5867,7 @@ public &StateBuilder
         if(
           !`fullExpression(
             `state.ctrlList[-1].task=, data=,
-            "`defencemul=(float)`sysivar[.iDEFENCE]/(",
-            "*100.0);", 1)) ret false;
+            "`defencemult=" , ";", 1)) ret false;
         ret true;
       }])) ret false;
       if(!value){
