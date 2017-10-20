@@ -995,7 +995,7 @@ const int ATP =
   public int groundanimtype;
   public int airtype;
   public int groundtype;
-  public int damage;
+  public int damage = 0;
   public int hitcount;
   public int fallcount;
   public int hitshaketime;
@@ -1027,7 +1027,6 @@ const int ATP =
     `groundanimtype = 0;
     `airtype = 0;
     `groundtype = 0;
-    `damage = 0;
     `hitcount = 0;
     `fallcount = 0;
     `hitshaketime = 0;
@@ -5969,7 +5968,7 @@ public void PlayerList!&Char?::clsn(&.Char pyr=, bool pro)
       bool kill = hitting == 1 ? hit.kill : hit.guard_kill;
       `pyr.stVal.hb.damage +=
         `pyr.getDamage(
-          (double)absdamage * (double)numHits, kill, false, by.attackmul);
+          (double)absdamage, kill, false, by.attackmul);
       if(hbset && `pyr.stVal.hb.damage >= `pyr.sysivar[.iLIFE]) branch{
       cond kill || !live:
         `pyr.stVal.hb.fallf = true;
