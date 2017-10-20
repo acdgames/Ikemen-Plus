@@ -40,7 +40,7 @@ in.new[0].set(
   (int)k_t::RETURN);
 
 
-const bool SaveMemory = true;
+const bool SaveMemory = false;
 
 
 const bool IgnoreMostErrors = true;
