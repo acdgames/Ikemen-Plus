@@ -3647,7 +3647,7 @@ public &Char
   }
   public void posReset()
   {
-    `facing = (`playerno&1) == 0 ? 1 : -1;
+    `facing = (`playerno&1) == 0 ? .stg~p1.facing : .stg~p2.facing;
     `setX(
       (float)(
         ((`playerno&1) == 0 ? .stg~p1.startx : .stg~p2.startx)
