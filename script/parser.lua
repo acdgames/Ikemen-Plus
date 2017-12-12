@@ -92,6 +92,8 @@ function f_parseChar(t, cel)
 						t.st[#t.st+1] = stPath
 					end
 				end
+			elseif section == 3 then --[Palette Keymap]
+				--nothing until palletes swap function is implemented
 			elseif section == 4 then --[Arcade]
 				if line:match('^%s*intro%.storyboard%s*=') then
 					line = line:gsub('%s*;.*$', '')
@@ -111,7 +113,7 @@ function f_parseChar(t, cel)
 					readLines = readLines - 1
 				end
 			end
-			if stPath ~= '' and section ~= 2 then
+			if stPath ~= '' and section ~= 2 and section ~= 3 then
 				readLines = readLines - 1
 			end
 			if readLines == 0 then
@@ -259,7 +261,7 @@ for line in content:gmatch('[^\r\n]+') do
 	elseif line:match('^%s*%[%s*options%s*%]') then
 		t_selOptions = {}
 		section = 3
-	elseif section == 1 then
+	elseif section == 1 then --[Characters]
 		row = #t_selChars+1
 		t_selChars[row] = {}
 		for i, c in ipairs(script.randomtest.strsplit(',', line)) do
@@ -270,12 +272,6 @@ for line in content:gmatch('[^\r\n]+') do
 				t_selChars[row]['char'] = c
 				addChar(c)
 				t_charAdd[c] = row - 1
-			elseif c:match('stages[/\\]') then
-				c = c:gsub('\\', '/')
-				if t_selChars[row]['stage'] == nil then
-					t_selChars[row]['stage'] = {}
-				end
-				t_selChars[row].stage[#t_selChars[row].stage+1] = c
 			elseif c:match('music%s*=%s*') then
 				c = c:gsub('\\', '/')
 				local bgmvolume = c:match('%s([0-9]+)$')
@@ -295,6 +291,12 @@ for line in content:gmatch('[^\r\n]+') do
 			elseif c:match('[0-9]+%s*=%s*[^%s]') then
 				local var1, var2 = c:match('([0-9]+)%s*=%s*(.+)%s*$')
 				t_selChars[row][tonumber(var1)] = var2:lower()
+			elseif c:match('%.[Dd][Ee][Ff]') then
+				c = c:gsub('\\', '/')
+				if t_selChars[row]['stage'] == nil then
+					t_selChars[row]['stage'] = {}
+				end
+				t_selChars[row].stage[#t_selChars[row].stage+1] = c
 			else
 				local param, value = c:match('^(.-)%s*=%s*(.-)$')
 				t_selChars[row][param] = tonumber(value)
@@ -313,7 +315,7 @@ for line in content:gmatch('[^\r\n]+') do
 			end
 			t_orderChars[t_selChars[row].order][#t_orderChars[t_selChars[row].order]+1] = row-1
 		end
-	elseif section == 2 then
+	elseif section == 2 then --[ExtraStages]
 		row = #t_selStages+1
 		for i, c in ipairs(script.randomtest.strsplit(',', line)) do
 			c = c:gsub('^%s*(.-)%s*$', '%1')
@@ -327,9 +329,18 @@ for line in content:gmatch('[^\r\n]+') do
 				t_selStages[row] = {}
 				local tmp = file:read("*all")
 				file:close()
+				local zoomout = tmp:match('\n%s*zoomout%s*=%s*([0-9%.]+)')
+				if zoomout ~= nil then
+					t_selStages[row]['zoommin'] = tonumber(zoomout)
+				end
+				local zoomin = tmp:match('\n%s*zoomin%s*=%s*([0-9%.]+)')
+				if zoomin ~= nil then
+					t_selStages[row]['zoommax'] = tonumber(zoomin)
+				end
 				local bgmusic = tmp:match('\n%s*bgmusic%s*=%s*([^;\n]+)%s*;?.*\n')
 				if bgmusic ~= nil then
 					bgmusic = bgmusic:gsub('^%s*(.-)%s*$', '%1')
+					bgmusic = bgmusic:gsub('\\', '/')
 					if bgmusic ~= '' then
 						t_selStages[row]['music'] = {}
 						t_selStages[row].music[1] = {}
@@ -368,7 +379,7 @@ for line in content:gmatch('[^\r\n]+') do
 				t_selStages[row][param] = tonumber(value)
 			end
 		end
-	elseif section == 3 then
+	elseif section == 3 then --[Options]
 		if line:match('^%s*.-%.maxmatches%s*=%s*') then
 			local rowName, line = line:match('^%s*(.-)%.maxmatches%s*=%s*(.+)')
 			t_selOptions[rowName .. 'maxmatches'] = {}
@@ -440,15 +451,47 @@ t_randomChars = {}
 for i=1, #t_selChars do
 	if t_selChars[i].stage ~= nil then
 		for j=1, #t_selChars[i].stage do
-			if t_stageDef[t_selChars[i].stage[j]] == nil and io.open(t_selChars[i].stage[j],'r') ~= nil then
-				t_selStages[#t_selStages+1] = {}
+			if t_stageDef[t_selChars[i].stage[j]] == nil then
+				local file = io.open(t_selChars[i].stage[j],'r')
+				if file == nil then
+					break
+				end
+				row = #t_selStages+1
+				t_selStages[row] = {}
+				local tmp = file:read("*all")
+				file:close()
+				local zoomout = tmp:match('\n%s*zoomout%s*=%s*([0-9%.]+)')
+				if zoomout ~= nil then
+					t_selStages[row]['zoommin'] = tonumber(zoomout)
+				end
+				local zoomin = tmp:match('\n%s*zoomin%s*=%s*([0-9%.]+)')
+				if zoomin ~= nil then
+					t_selStages[row]['zoommax'] = tonumber(zoomin)
+				end
+				local bgmusic = tmp:match('\n%s*bgmusic%s*=%s*([^;\n]+)%s*;?.*\n')
+				if bgmusic ~= nil then
+					bgmusic = bgmusic:gsub('^%s*(.-)%s*$', '%1')
+					bgmusic = bgmusic:gsub('\\', '/')
+					if bgmusic ~= '' then
+						t_selStages[row]['music'] = {}
+						t_selStages[row].music[1] = {}
+						t_selStages[row].music[1]['bgmusic'] = bgmusic
+						local bgmvolume = tmp:match('\n%s*bgmvolume%s*=%s*([0-9]+)')
+						if bgmvolume ~= nil and bgmvolume ~= '' then
+							t_selStages[row].music[1]['bgmvolume'] = tonumber(bgmvolume)
+						else
+							t_selStages[row].music[1]['bgmvolume'] = 100
+						end
+					end
+				end
 				addStage(t_selChars[i].stage[j])
-				t_selStages[#t_selStages]['name'] = getStageName(#t_selStages):gsub('^["%s]*(.-)["%s]*$', '%1')
-				t_selStages[#t_selStages]['stage'] = t_selChars[i].stage[j]
-				t_selChars[i].stage[j] = #t_selStages
 				if t_selChars[i].includestage == nil or t_selChars[i].includestage == 1 then
 					data.includestage = data.includestage + 1
 				end
+				t_selStages[#t_selStages]['name'] = getStageName(#t_selStages):gsub('^["%s]*(.-)["%s]*$', '%1')
+				t_selStages[#t_selStages]['stage'] = t_selChars[i].stage[j]
+				t_selChars[i].stage[j] = #t_selStages
+				--t_stageDef[t_selChars[i].stage[j]] = row
 			else
 				t_selChars[i].stage[j] = t_stageDef[t_selChars[i].stage[j]]
 			end

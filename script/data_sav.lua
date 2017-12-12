@@ -15,7 +15,6 @@ data.p2Controller = -1
 data.difficulty = 8
 data.coins = 10
 data.contSelection = true
-data.randomselect = true
 data.aiRamping = true
 data.autoguard = false
 data.lifebar = 'data/gms_lifebar/fight.def'

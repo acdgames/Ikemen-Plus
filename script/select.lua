@@ -82,18 +82,18 @@ function f_setZoom()
 	end
 	setZoom(zoom)
 	local zoomMin = data.zoomMin
-	if t_selStages[stageNo].zoomMin ~= nil then
-		zoomMin = t_selStages[stageNo].zoomMin
+	if t_selStages[stageNo].zoommin ~= nil then
+		zoomMin = t_selStages[stageNo].zoommin
 	end
 	setZoomMin(zoomMin)
 	local zoomMax = data.zoomMax
-	if t_selStages[stageNo].zoomMax ~= nil then
-		zoomMax = t_selStages[stageNo].zoomMax
+	if t_selStages[stageNo].zoommax ~= nil then
+		zoomMax = t_selStages[stageNo].zoommax
 	end
 	setZoomMax(zoomMax)
 	local zoomSpeed = data.zoomSpeed
-	if t_selStages[stageNo].zoomSpeed ~= nil then
-		zoomSpeed = t_selStages[stageNo].zoomSpeed
+	if t_selStages[stageNo].zoomspeed ~= nil then
+		zoomSpeed = t_selStages[stageNo].zoomspeed
 	end
 	setZoomSpeed(zoomSpeed)
 end
@@ -352,12 +352,7 @@ function f_selectSimple()
 		f_aiLevel()
 		f_selectVersus()
 		f_setZoom()
-		local track = ''
-		if t_selStages[stageNo].music ~= nil then
-			track = math.random(1,#t_selStages[stageNo].music)
-			track = t_selStages[stageNo].music[track].bgmusic
-		end
-		playBGM(track)
+		f_assignMusic()
 		winner = game()
 		playBGM('')
 		cmdInput()
@@ -553,36 +548,18 @@ function f_selectAdvance()
 				end
 			end
 		end
-		--AI level
-		f_aiLevel()
-		--assign stage
-		if t_selChars[data.t_p2selected[1].cel+1].stage ~= nil then
-			stageNo = math.random(1,#t_selChars[data.t_p2selected[1].cel+1].stage)
-			stageNo = t_selChars[data.t_p2selected[1].cel+1].stage[stageNo]
-		else
-			stageNo = math.random(1, data.includestage)
-		end
-		setStage(stageNo)
-		selectStage(stageNo)
 		setMatchNo(matchNo)
+		f_aiLevel()
+		f_selectStage()
 		f_selectVersus()
 		f_setZoom()
-		--assign stage music
-		local track = ''
-		if t_selChars[data.t_p2selected[1].cel+1].music ~= nil then
-			track = math.random(1,#t_selChars[data.t_p2selected[1].cel+1].music)
-			track = t_selChars[data.t_p2selected[1].cel+1].music[track].bgmusic
-		elseif t_selStages[stageNo].music ~= nil then
-			track = math.random(1,#t_selStages[stageNo].music)
-			track = t_selStages[stageNo].music[track].bgmusic
-		end
 		--inputs
 		if data.coop then
 			remapInput(3,2) --P2 controls assigned to P3 character
 			--remapInput(2,3) --P3 controls assigned to P2 character
 		end
 		matchTime = os.clock()
-		playBGM(track)
+		f_assignMusic()
 		winner = game()
 		playBGM('')
 		matchTime = os.clock() - matchTime
@@ -1028,11 +1005,7 @@ function f_p1SelectMenu()
 				updateAnim = true
 				t[data.p1Char[i]] = ''
 			end
-			local rand = false
-			if t_selChars[data.p1Char[i]+1].char == 'randomselect' then
-				rand = true
-			end
-			data.t_p1selected[i] = {['cel'] = data.p1Char[i], ['pal'] = math.random(1,6), ['up'] = updateAnim, ['rand'] = rand}
+			data.t_p1selected[i] = {['cel'] = data.p1Char[i], ['pal'] = math.random(1,6), ['up'] = updateAnim}
 		end
 		p1Portrait = data.p1Char[1]
 		p1SelEnd = true
@@ -1158,10 +1131,8 @@ function f_p1SelectMenu()
 			if btnPalNo(p1Cmd) > 0 then
 				sndPlay(sysSnd, 100, 1)
 				local cel = p1Cell
-				local rand = false
 				if getCharName(cel) == 'Random' then
-					cel = math.random(1, #t_randomChars)
-					rand = true
+					cel = math.random(1, #t_randomChars)-1
 				end
 				local updateAnim = true
 				for i=1, #data.t_p1selected do
@@ -1170,10 +1141,10 @@ function f_p1SelectMenu()
 					end
 				end
 				if data.coop then
-					data.t_p1selected[1] = {['cel'] = cel, ['pal'] = btnPalNo(p1Cmd), ['up'] = updateAnim, ['rand'] = rand}
+					data.t_p1selected[1] = {['cel'] = cel, ['pal'] = btnPalNo(p1Cmd), ['up'] = updateAnim}
 					p1SelEnd = true
 				else
-					data.t_p1selected[#data.t_p1selected+1] = {['cel'] = cel, ['pal'] = btnPalNo(p1Cmd), ['up'] = updateAnim, ['rand'] = rand}
+					data.t_p1selected[#data.t_p1selected+1] = {['cel'] = cel, ['pal'] = btnPalNo(p1Cmd), ['up'] = updateAnim}
 					if #data.t_p1selected == p1numChars then
 						if data.p2In == 1 and matchNo == 0 then
 							p2TeamEnd = false
@@ -1203,12 +1174,8 @@ function f_p2SelectMenu()
 				updateAnim = true
 				t[data.p2Char[i]] = ''
 			end
-			local rand = false
-			if t_selChars[data.p2Char[i]+1].char == 'randomselect' then
-				rand = true
-			end
-			data.t_p2selected[i] = {['cel'] = data.p2Char[i], ['pal'] = math.random(1,6), ['up'] = updateAnim, ['rand'] = rand}
-			f_printTable(data.t_p2selected)
+			data.t_p2selected[i] = {['cel'] = data.p2Char[i], ['pal'] = math.random(1,6), ['up'] = updateAnim}
+			--f_printTable(data.t_p2selected)
 		end
 		p2Portrait = data.p2Char[1]
 		p2SelEnd = true
@@ -1340,10 +1307,8 @@ function f_p2SelectMenu()
 			if btnPalNo(p2Cmd) > 0 then
 				sndPlay(sysSnd, 100, 1)
 				local cel = p2Cell
-				local rand = false
 				if getCharName(cel) == 'Random' then
-					cel = math.random(1, #t_randomChars)
-					rand = true
+					cel = math.random(1, #t_randomChars)-1
 				end
 				local updateAnim = true
 				if data.coop then
@@ -1352,7 +1317,7 @@ function f_p2SelectMenu()
 							updateAnim = false
 						end
 					end
-					data.t_p1selected[2] = {['cel'] = cel, ['pal'] = btnPalNo(p2Cmd), ['up'] = updateAnim, ['rand'] = rand}
+					data.t_p1selected[2] = {['cel'] = cel, ['pal'] = btnPalNo(p2Cmd), ['up'] = updateAnim}
 					p2SelEnd = true
 				else
 					for i=1, #data.t_p2selected do
@@ -1360,7 +1325,7 @@ function f_p2SelectMenu()
 							updateAnim = false
 						end
 					end
-					data.t_p2selected[#data.t_p2selected+1] = {['cel'] = cel, ['pal'] = btnPalNo(p2Cmd), ['up'] = updateAnim, ['rand'] = rand}
+					data.t_p2selected[#data.t_p2selected+1] = {['cel'] = cel, ['pal'] = btnPalNo(p2Cmd), ['up'] = updateAnim}
 					if #data.t_p2selected == p2numChars then
 						p2SelEnd = true
 					end
@@ -1427,6 +1392,26 @@ function f_selectStage()
 	end
 end
 
+function f_assignMusic()
+	track = ''
+	if data.stageMenu then
+		if t_selStages[stageNo].music ~= nil then
+			track = math.random(1,#t_selStages[stageNo].music)
+			track = t_selStages[stageNo].music[track].bgmusic
+		end
+	else
+		if t_selChars[data.t_p2selected[1].cel+1].music ~= nil then
+			track = math.random(1,#t_selChars[data.t_p2selected[1].cel+1].music)
+			track = t_selChars[data.t_p2selected[1].cel+1].music[track].bgmusic
+		elseif t_selStages[stageNo].music ~= nil then
+			track = math.random(1,#t_selStages[stageNo].music)
+			track = t_selStages[stageNo].music[track].bgmusic
+		end
+		stageEnd = true
+	end
+	playBGM(track)
+end
+
 --;===========================================================
 --; VERSUS SCREEN
 --;===========================================================
@@ -1459,8 +1444,6 @@ animSetTile(versusBG3, 1, 1)
 animSetWindow(versusBG3, 180, 30, 120, 140)
 
 function f_selectVersus()
-	f_randomChar(data.t_p1selected)
-	f_randomChar(data.t_p2selected)
 	textImgSetText(txt_matchNo, 'Match: ' .. matchNo)
 	local i = 0
 	if not data.versusScreen then
@@ -1683,15 +1666,6 @@ function f_selectVersus()
 			animDraw(versusBG4)
 			cmdInput()
 			refresh()
-		end
-	end
-end
-
-function f_randomChar(t)
-	for i=1, #t do
-		if matchNo > 1 and t[i].rand and data.randomselect then
-			t[i].cel = math.random(1, #t_randomChars)
-			t[i].pal = math.random(1,6)
 		end
 	end
 end

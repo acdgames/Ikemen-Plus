@@ -85,11 +85,6 @@ if data.contSelection then
 else
 	s_contSelection = 'No'
 end
-if data.randomselect then
-	s_randomselect = 'Yes'
-else
-	s_randomselect = 'No'
-end
 if data.aiRamping then
 	s_aiRamping = 'Yes'
 else
@@ -162,7 +157,6 @@ function f_saveCfg()
 		['data.difficulty'] = data.difficulty,
 		['data.coins'] = data.coins,
 		['data.contSelection'] = data.contSelection,
-		['data.randomselect'] = data.randomselect,
 		['data.aiRamping'] = data.aiRamping,
 		['data.autoguard'] = data.autoguard,
 		['data.lifebar'] = data.lifebar,
@@ -376,8 +370,6 @@ function f_mainCfg()
 				data.coins = 10
 				data.contSelection = true
 				s_contSelection = 'Yes'
-				data.randomselect = true
-				s_randomselect = 'Yes'
 				data.aiRamping = true
 				s_aiRamping = 'Yes'
 				data.autoguard = false
@@ -504,7 +496,6 @@ t_modesCfg = {
 	{id = '', text = 'Difficulty level',         varID = textImgNew(), varText = data.difficulty},
 	{id = '', text = 'Arcade Coins',             varID = textImgNew(), varText = data.coins},
 	{id = '', text = 'Char change at Continue',  varID = textImgNew(), varText = s_contSelection},
-	{id = '', text = 'Randomselect each battle', varID = textImgNew(), varText = s_randomselect},
 	{id = '', text = 'AI ramping',               varID = textImgNew(), varText = s_aiRamping},
 	{id = '', text = 'Auto-Guard',               varID = textImgNew(), varText = s_autoguard},
 	{id = '', text = 'Back'},
@@ -561,19 +552,8 @@ function f_modesCfg()
 				s_contSelection = 'Yes'
 			end
 			modified = 1
-		--Randomselect each battle
-		elseif modesCfg == 4 and (commandGetState(p1Cmd, 'r') or commandGetState(p1Cmd, 'l') or btnPalNo(p1Cmd) > 0) then
-			sndPlay(sysSnd, 100, 0)
-			if data.randomselect then
-				data.randomselect = false
-				s_randomselect = 'No'
-			else
-				data.randomselect = true
-				s_randomselect = 'Yes'
-			end
-			modified = 1
 		--AI ramping
-		elseif modesCfg == 5 and (commandGetState(p1Cmd, 'r') or commandGetState(p1Cmd, 'l') or btnPalNo(p1Cmd) > 0) then
+		elseif modesCfg == 4 and (commandGetState(p1Cmd, 'r') or commandGetState(p1Cmd, 'l') or btnPalNo(p1Cmd) > 0) then
 			sndPlay(sysSnd, 100, 0)
 			if data.aiRamping then
 				data.aiRamping = false
@@ -584,7 +564,7 @@ function f_modesCfg()
 			end
 			modified = 1
 		--Auto-Guard
-		elseif modesCfg == 6 and (commandGetState(p1Cmd, 'r') or commandGetState(p1Cmd, 'l') or btnPalNo(p1Cmd) > 0) then
+		elseif modesCfg == 5 and (commandGetState(p1Cmd, 'r') or commandGetState(p1Cmd, 'l') or btnPalNo(p1Cmd) > 0) then
 			sndPlay(sysSnd, 100, 0)
 			if data.autoguard then
 				data.autoguard = false
@@ -595,7 +575,7 @@ function f_modesCfg()
 			end
 			modified = 1
 		--Back
-		elseif modesCfg == 7 and btnPalNo(p1Cmd) > 0 then
+		elseif modesCfg == 6 and btnPalNo(p1Cmd) > 0 then
 			sndPlay(sysSnd, 100, 2)
 			break
 		end
@@ -606,9 +586,8 @@ function f_modesCfg()
 		t_modesCfg[1].varText = data.difficulty
 		t_modesCfg[2].varText = data.coins
 		t_modesCfg[3].varText = s_contSelection
-		t_modesCfg[4].varText = s_randomselect
-		t_modesCfg[5].varText = s_aiRamping
-		t_modesCfg[6].varText = s_autoguard
+		t_modesCfg[4].varText = s_aiRamping
+		t_modesCfg[5].varText = s_autoguard
 		for i=1, #t_modesCfg do
 			textImgDraw(t_modesCfg[i].id)
 			if t_modesCfg[i].varID ~= nil then
