@@ -17,11 +17,14 @@ function f_mainNetplay()
 	local cursorPosY = 0
 	local moveTxt = 0
 	local mainNetplay = 1
+	local cancel = false
 	while true do
 		if esc() then
 			sndPlay(sysSnd, 100, 2)
-			break
-		elseif commandGetState(p1Cmd, 'u') then
+			return
+		end
+
+		if commandGetState(p1Cmd, 'u') then
 			sndPlay(sysSnd, 100, 0)
 			mainNetplay = mainNetplay - 1
 		elseif commandGetState(p1Cmd, 'd') then
@@ -50,7 +53,6 @@ function f_mainNetplay()
 		end
 		if btnPalNo(p1Cmd) > 0 then
 			f_default()
-			local cancel = false
 			--VS MODE
 			if mainNetplay == 1 then
 				sndPlay(sysSnd, 100, 1)
@@ -59,7 +61,7 @@ function f_mainNetplay()
 				data.stageMenu = true
 				data.p2Faces = true
 				textImgSetText(txt_mainSelect, 'Online Versus')
-				f_connect()
+				cancel = f_connect()
 				if not cancel then
 					synchronize()
 					math.randomseed(sszRandom())
@@ -74,7 +76,7 @@ function f_mainNetplay()
 				data.coinsLeft = data.coins - 1
 				data.gameMode = 'arcade'
 				textImgSetText(txt_mainSelect, 'Online Cooperative')
-				f_connect()
+				cancel = f_connect()
 				if not cancel then
 					synchronize()
 					math.randomseed(sszRandom())
@@ -89,7 +91,7 @@ function f_mainNetplay()
 				data.coinsLeft = 0
 				data.gameMode = 'survival'
 				textImgSetText(txt_mainSelect, 'Online Survival')
-				f_connect()
+				cancel = f_connect()
 				if not cancel then
 					synchronize()
 					math.randomseed(sszRandom())
@@ -125,6 +127,10 @@ function f_mainNetplay()
 		textImgDraw(txt_titleFt2)
 		animDraw(data.fadeTitle)
 		animUpdate(data.fadeTitle)
+
+		exitNetPlay()
+    	exitReplay()
+
 		cmdInput()
 		refresh()
 	end
@@ -140,10 +146,10 @@ function f_connect()
 	while not connected() do
 		if esc() then
 			sndPlay(sysSnd, 100, 2)
-			cancel = true
-			break
+			return true
 		end
 		textImgDraw(txt_connecting)
 		refresh()
 	end
+	return false
 end
