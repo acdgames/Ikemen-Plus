@@ -218,6 +218,7 @@ function f_printTable(t, toFile)
 		sub_print_t(t, '  ')
 	end
 	local file = io.open(toFile,"w+")
+	if file == nil then return end
 	file:write(txt)
 	file:close()
 end
