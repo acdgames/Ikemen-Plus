@@ -1,4 +1,4 @@
-
+﻿
 module(..., package.seeall)
 
 function strsplit(delimiter, text)
@@ -78,10 +78,8 @@ function randRank()
 end
 
 function eachAllChars(f)
-  for cel = 0, numSelCells()-1 do
-    if getCharFileName(cel) ~= 'randomselect' and getCharName(cel) ~= '' then
-      f(cel)
-    end
+  for cel = 1, #t_randomChars do
+    f(cel-1)
   end
 end
 
@@ -245,7 +243,7 @@ function rosterTxt()
   for i = 1, #roster do
     str = str .. '\n' .. getCharFileName(roster[i])
   end
-  dscr = io.open('script/randomroster.txt', 'w')
+  dscr = io.open('debug/randomtest.txt', 'w')
   dscr:write(str)
   io.close(dscr)
 end

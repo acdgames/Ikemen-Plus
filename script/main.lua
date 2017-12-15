@@ -1,77 +1,63 @@
 
-setRoundTime(999 * 6)--frames
-setLifeMul(1.0)
-setTeam1VS2Life(1.0)
-setTurnsRecoveryRate(1.0 / 300.0)
+math.randomseed(os.time())
 
-setZoom(false)
-setZoomMin(0.25)
-setZoomMax(1.0)
-setZoomSpeed(1.0)
+--;===========================================================
+--; SCREENPACK DEFINITION
+--;===========================================================
+--Create global space (accessing variables between modules)
+data = require('script.data')
 
-loadLifebar('data/gms_lifebar/fight.def')
+--Load saved variables
+assert(loadfile('script/data_sav.lua'))()
+
+--Assign Lifebar
+loadLifebar(data.lifebar) --path to lifebar stored in 'script/data_sav.lua', also adjustable from options
+
+--Debug stuff
 loadDebugFont('data/gms_lifebar/font2.fnt')
 setDebugScript('script/debug.lua')
 
-selectColumns = 10
+--SFF
+sysSff = sffNew('data/system.sff')
+fadeSff = sffNew('data/fade.sff')
 
+--SND
+sysSnd = sndNew('data/system.snd')
 
-require('script.randomtest')
+--Fonts
+jgFnt = fontNew('font/JG.fnt')
+font1 = fontNew('font/f-4x6.fnt')
+font2 = fontNew('font/f-6x9.fnt')
+survBarsFnt = fontNew('font/survival_bars.fnt')
+survNumFnt = fontNew('font/survival_nums.fnt')
 
-function addWithRefresh(addFn, text)
-  local nextRefresh = os.clock() + 0.02
-  for i, c
-    in ipairs(script.randomtest.strsplit('\n',
-                                         text:gsub('^%s*(.-)%s*$', '%1')))
-  do
-    addFn(c)
-    if os.clock() >= nextRefresh then
-      refresh()
-      nextRefresh = os.clock() + 0.02
-    end
-  end
-end
+--Music
+bgm = 'sound/Menu.mp3'
+bgmSelect = 'sound/Char Select.mp3'
 
-orgAddChar = addChar
-orgAddStage = addStage
+--;===========================================================
+--; COMMON SECTION
+--;===========================================================
+--input stuff
+inputdia = inputDialogNew()
+data.p1In = 1
+data.p2In = 1
 
-function addChar(text)
-  addWithRefresh(orgAddChar, text)
-end
-
-function addStage(text)
-  addWithRefresh(orgAddStage, text)
-end
-
-assert(loadfile('script/select.lua'))()
-
-
-math.randomseed(os.time())
-
-------------------------------------------------------------
-sysSff = sffNew('script/system.sff')
-sysSnd = sndNew('script/system.snd')
-jgFnt = fontNew('data/gms_lifebar/font2.fnt')
-
-bgm = ''
-playBGM(bgm)
-
-------------------------------------------------------------
 function setCommand(c)
-  commandAdd(c, 'u', '$U')
-  commandAdd(c, 'd', '$D')
-  commandAdd(c, 'l', '$B')
-  commandAdd(c, 'r', '$F')
-  commandAdd(c, 'a', 'a')
-  commandAdd(c, 'b', 'b')
-  commandAdd(c, 'c', 'c')
-  commandAdd(c, 'x', 'x')
-  commandAdd(c, 'y', 'y')
-  commandAdd(c, 'z', 'z')
-  commandAdd(c, 's', 's')
-  commandAdd(c, 'holds', '/s')
-  commandAdd(c, 'su', '/s, U')
-  commandAdd(c, 'sd', '/s, D')
+	commandAdd(c, 'u', '$U')
+	commandAdd(c, 'd', '$D')
+	commandAdd(c, 'l', '$B')
+	commandAdd(c, 'r', '$F')
+	commandAdd(c, 'a', 'a')
+	commandAdd(c, 'b', 'b')
+	commandAdd(c, 'c', 'c')
+	commandAdd(c, 'x', 'x')
+	commandAdd(c, 'y', 'y')
+	commandAdd(c, 'z', 'z')
+	commandAdd(c, 's', 's')
+	commandAdd(c, 'holds', '/s')
+	commandAdd(c, 'su', '/s, U')
+	commandAdd(c, 'sd', '/s, D')
 end
 
 p1Cmd = commandNew()
@@ -80,608 +66,605 @@ setCommand(p1Cmd)
 p2Cmd = commandNew()
 setCommand(p2Cmd)
 
-------------------------------------------------------------
-selectRows = math.floor(selectColumns * 2 / 5.0)
-
-setRandomSpr(sysSff, 151, 0, 5.0/selectColumns, 5.0/selectColumns)
-setSelColRow(selectColumns, selectRows)
-setSelCellSize(29*5.0/selectColumns, 29*5.0/selectColumns)
-setSelCellScale(5.0/selectColumns, 5.0/selectColumns)
-
-function init()
-  p1TeamMode = 0
-  p1NumTurns  = 2
-  p1SelOffset = 0
-  p1SelX = 0
-  p1SelY = 0
-  p1Portrait = nil
-
-  p2TeamMode = 0
-  p2NumTurns  = 2
-  p2SelOffset = 0
-  p2SelX = 0
-  p2SelY = 0
-  p2Portrait = nil
-
-  stageNo = 0
-  setStage(0)
-end
-
-init()
-
-function noTask()
-end
-
-
-function animPosDraw(a, x, y)
-  animSetPos(a, x, y)
-  animDraw(a)
-end
-
-function textImgPosDraw(ti, x, y)
-  textImgSetPos(ti, x, y)
-  textImgDraw(ti)
-end
-
-function createTextImg(font, bank, aline, text, x, y)
-  local ti = textImgNew()
-  textImgSetFont(ti, font)
-  textImgSetBank(ti, bank)
-  textImgSetAlign(ti, aline)
-  textImgSetText(ti, text)
-  textImgSetPos(ti, x, y)
-  return ti
-end
-
-function btnPalNo(cmd)
-  local s = 0
-  if commandGetState(cmd, 'holds') then s = 6 end
-  if commandGetState(cmd, 'a') then return 1 + s end
-  if commandGetState(cmd, 'b') then return 2 + s end
-  if commandGetState(cmd, 'c') then return 3 + s end
-  if commandGetState(cmd, 'x') then return 4 + s end
-  if commandGetState(cmd, 'y') then return 5 + s end
-  if commandGetState(cmd, 'z') then return 6 + s end
-  return 0
-end
-
-------------------------------------------------------------
-p1SelTmTxt = createTextImg(jgFnt, 0, 1, 'Team Mode', 20, 30)
-p1SingleTxt = createTextImg(jgFnt, 0, 1, 'Single', 20, 50)
-p1SimulTxt = createTextImg(jgFnt, 0, 1, 'Simul', 20, 65)
-p1TurnsTxt = createTextImg(jgFnt, 0, 1, 'Turns', 20, 80)
-
-p1TmCursor = animNew(sysSff, [[
-180,0, 0,0, -1
-]])
-
-p1TmIcon = animNew(sysSff, [[
-181,0, 0,0, -1
-]])
-
-function p1TmSub()
-  if commandGetState(p1Cmd, 'u') then
-    sndPlay(sysSnd, 100, 0)
-    p1TeamMode = p1TeamMode - 1
-    if p1TeamMode < 0 then p1TeamMode = 2 end
-  elseif commandGetState(p1Cmd, 'd') then
-    sndPlay(sysSnd, 100, 0)
-    p1TeamMode = p1TeamMode + 1
-    if p1TeamMode > 2 then p1TeamMode = 0 end
-  elseif p1TeamMode == 2 then
-    if commandGetState(p1Cmd, 'l') then
-      sndPlay(sysSnd, 100, 0)
-      p1NumTurns = p1NumTurns - 1
-      if p1NumTurns < 1 then p1NumTurns = 1 end
-    elseif commandGetState(p1Cmd, 'r') then
-      sndPlay(sysSnd, 100, 0)
-      p1NumTurns = p1NumTurns + 1
-      if p1NumTurns > 4 then p1NumTurns = 4 end
-    end
-  end
-  textImgDraw(p1SelTmTxt)
-  textImgDraw(p1SingleTxt)
-  textImgDraw(p1SimulTxt)
-  textImgDraw(p1TurnsTxt)
-  animUpdate(p1TmIcon)
-  animPosDraw(p1TmIcon, 80, 66)
-  animPosDraw(p1TmIcon, 86, 66)
-  for i = 1, p1NumTurns do
-    animPosDraw(p1TmIcon, 74 + i*6, 81)
-  end
-  animUpdate(p1TmCursor)
-  animPosDraw(p1TmCursor, 10, 47 + p1TeamMode*15)
-  if btnPalNo(p1Cmd) > 0 then
-    sndPlay(sysSnd, 100, 1)
-    setTeamMode(1, p1TeamMode, p1NumTurns)
-    p1Selected = {}
-    p1SelEnd = false
-    p1Task = p1SelSub
-  end
-end
-
-
-------------------------------------------------------------
-p2SelTmTxt = createTextImg(jgFnt, 0, -1, 'Team Mode', 300, 30)
-p2SingleTxt = createTextImg(jgFnt, 0, -1, 'Single', 300, 50)
-p2SimulTxt = createTextImg(jgFnt, 0, -1, 'Simul', 300, 65)
-p2TurnsTxt = createTextImg(jgFnt, 0, -1, 'Turns', 300, 80)
-
-p2TmCursor = animNew(sysSff, [[
-190,0, 0,0, -1
-]])
-
-p2TmIcon = animNew(sysSff, [[
-191,0, 0,0, -1
-]])
-
-function p2TmSub()
-  if commandGetState(p2Cmd, 'u') then
-    sndPlay(sysSnd, 100, 0)
-    p2TeamMode = p2TeamMode - 1
-    if p2TeamMode < 0 then p2TeamMode = 2 end
-  elseif commandGetState(p2Cmd, 'd') then
-    sndPlay(sysSnd, 100, 0)
-    p2TeamMode = p2TeamMode + 1
-    if p2TeamMode > 2 then p2TeamMode = 0 end
-  elseif p2TeamMode == 2 then
-    if commandGetState(p2Cmd, 'r') then
-      sndPlay(sysSnd, 100, 0)
-      p2NumTurns = p2NumTurns - 1
-      if p2NumTurns < 1 then p2NumTurns = 1 end
-    elseif commandGetState(p2Cmd, 'l') then
-      sndPlay(sysSnd, 100, 0)
-      p2NumTurns = p2NumTurns + 1
-      if p2NumTurns > 4 then p2NumTurns = 4 end
-    end
-  end
-  textImgDraw(p2SelTmTxt)
-  textImgDraw(p2SingleTxt)
-  textImgDraw(p2SimulTxt)
-  textImgDraw(p2TurnsTxt)
-  animUpdate(p2TmIcon)
-  animPosDraw(p2TmIcon, 240, 66)
-  animPosDraw(p2TmIcon, 234, 66)
-  for i = 1, p2NumTurns do
-    animPosDraw(p2TmIcon, 246 - i*6, 81)
-  end
-  animUpdate(p2TmCursor)
-  animPosDraw(p2TmCursor, 310, 47 + p2TeamMode*15)
-  if btnPalNo(p2Cmd) > 0 then
-    sndPlay(sysSnd, 100, 1)
-    setTeamMode(2, p2TeamMode, p2NumTurns)
-    p2Selected = {}
-    p2SelEnd = false
-    p2Task = p2SelSub
-  end
-end
-
-
-------------------------------------------------------------
-p1Cursor = animNew(sysSff, [[
-160,0, 0,0, -1
-]])
-animSetScale(p1Cursor, 5.0/selectColumns, 5.0/selectColumns)
-
-p1NameTxt = createTextImg(jgFnt, 0, 1, '', 0, 0)
-textImgSetScale(p1NameTxt, 0.5, 0.5)
-
-function p1DrawSelectName()
-  local y = 162
-  for i = 1, #p1Selected do
-    textImgSetText(p1NameTxt, getCharName(p1Selected[i]))
-    textImgPosDraw(p1NameTxt, 10, y)
-    y = y + 7
-  end
-  return y
-end
-
-function p1SelSub()
-  local n = p1SelOffset + p1SelX + selectColumns*p1SelY
-  p1Portrait = n
-  local y = p1DrawSelectName()
-  if not p1SelEnd then
-    if commandGetState(p1Cmd, 'su') then
-      sndPlay(sysSnd, 100, 0)
-      p1SelY = p1SelY - 20
-    elseif commandGetState(p1Cmd, 'sd') then
-      sndPlay(sysSnd, 100, 0)
-      p1SelY = p1SelY + 20
-    elseif commandGetState(p1Cmd, 'u') then
-      sndPlay(sysSnd, 100, 0)
-      p1SelY = p1SelY - 1
-    elseif commandGetState(p1Cmd, 'd') then
-      sndPlay(sysSnd, 100, 0)
-      p1SelY = p1SelY + 1
-    elseif commandGetState(p1Cmd, 'l') then
-      sndPlay(sysSnd, 100, 0)
-      p1SelX = p1SelX - 1
-    elseif commandGetState(p1Cmd, 'r') then
-      sndPlay(sysSnd, 100, 0)
-      p1SelX = p1SelX + 1
-    end
-    if p1SelY < 0 then
-      p1SelOffset = p1SelOffset + selectColumns*p1SelY
-      p1SelY = 0
-    elseif p1SelY >= selectRows then
-      p1SelOffset = p1SelOffset + selectColumns*(p1SelY - (selectRows - 1))
-      p1SelY = selectRows - 1
-    end
-    if p1SelX < 0 then
-      p1SelX = selectColumns - 1
-    elseif p1SelX >= selectColumns then
-      p1SelX = 0
-    end
-    animUpdate(p1Cursor)
-    animPosDraw(
-      p1Cursor, 10 + 29*p1SelX*5.0/selectColumns,
-      170 + 29*p1SelY*5.0/selectColumns)
-    textImgSetText(p1NameTxt, getCharName(n))
-    textImgPosDraw(p1NameTxt, 10, y)
-    local selval = selectChar(1, n, btnPalNo(p1Cmd))
-    if selval > 0 then
-      sndPlay(sysSnd, 100, 1)
-      p1Selected[#p1Selected+1] = n
-    end
-    if selval == 2 then
-      p1SelEnd = true
-      if p2In == 1 then
-        p2Task = p2TmSub
-        commandBufReset(p2Cmd)
-      end
-    end
-  end
-end
-
-
-------------------------------------------------------------
-p2Cursor = animNew(sysSff, [[
-170,0, 0,0, -1
-]])
-animSetScale(p2Cursor, 5.0/selectColumns, 5.0/selectColumns)
-
-p2NameTxt = createTextImg(jgFnt, 0, -1, '', 0, 0)
-textImgSetScale(p2NameTxt, 0.5, 0.5)
-
-function p2DrawSelectName()
-  local y = 162
-  for i = 1, #p2Selected do
-    textImgSetText(p2NameTxt, getCharName(p2Selected[i]))
-    textImgPosDraw(p2NameTxt, 310, y)
-    y = y + 7
-  end
-  return y
-end
-
-function p2SelSub()
-  local n = p2SelOffset + p2SelX + selectColumns*p2SelY
-  p2Portrait = n
-  local y = p2DrawSelectName()
-  if not p2SelEnd then
-    if commandGetState(p2Cmd, 'su') then
-      sndPlay(sysSnd, 100, 0)
-      p2SelY = p2SelY - 20
-    elseif commandGetState(p2Cmd, 'sd') then
-      sndPlay(sysSnd, 100, 0)
-      p2SelY = p2SelY + 20
-    elseif commandGetState(p2Cmd, 'u') then
-      sndPlay(sysSnd, 100, 0)
-      p2SelY = p2SelY - 1
-    elseif commandGetState(p2Cmd, 'd') then
-      sndPlay(sysSnd, 100, 0)
-      p2SelY = p2SelY + 1
-    elseif commandGetState(p2Cmd, 'l') then
-      sndPlay(sysSnd, 100, 0)
-      p2SelX = p2SelX - 1
-    elseif commandGetState(p2Cmd, 'r') then
-      sndPlay(sysSnd, 100, 0)
-      p2SelX = p2SelX + 1
-    end
-    if p2SelY < 0 then
-      p2SelOffset = p2SelOffset + selectColumns*p2SelY
-      p2SelY = 0
-    elseif p2SelY >= selectRows then
-      p2SelOffset = p2SelOffset + selectColumns*(p2SelY - (selectRows - 1))
-      p2SelY = selectRows - 1
-    end
-    if p2SelX < 0 then
-      p2SelX = selectColumns - 1
-    elseif p2SelX >= selectColumns then
-      p2SelX = 0
-    end
-    animUpdate(p2Cursor)
-    animPosDraw(
-      p2Cursor, 169 + 29*p2SelX*5.0/selectColumns,
-      170 + 29*p2SelY*5.0/selectColumns)
-    textImgSetText(p2NameTxt, getCharName(n))
-    textImgPosDraw(p2NameTxt, 310, y)
-    local selval = selectChar(2, n, btnPalNo(p2Cmd))
-    if selval > 0 then
-      sndPlay(sysSnd, 100, 1)
-      p2Selected[#p2Selected+1] = n
-    end
-    if selval == 2 then
-      p2SelEnd = true
-      if p1In == 2 then
-        p1Task = p1TmSub
-        commandBufReset(p1Cmd)
-      end
-    end
-  end
-end
-
-
-------------------------------------------------------------
-selStageTxt = createTextImg(jgFnt, 0, 0, '', 160, 237)
-textImgSetScale(selStageTxt, 0.5, 0.5)
-
-function selStageSub()
-  if commandGetState(p1Cmd, 'l') then
-    sndPlay(sysSnd, 100, 0)
-    stageNo = setStage(stageNo - 1)
-  elseif commandGetState(p1Cmd, 'r') then
-    sndPlay(sysSnd, 100, 0)
-    stageNo = setStage(stageNo + 1)
-  elseif commandGetState(p1Cmd, 'u') then
-    sndPlay(sysSnd, 100, 0)
-    stageNo = setStage(stageNo - 10)
-  elseif commandGetState(p1Cmd, 'd') then
-    sndPlay(sysSnd, 100, 0)
-    stageNo = setStage(stageNo + 10)
-  end
-  textImgSetText(
-    selStageTxt, 'Stage ' .. stageNo .. ': ' .. getStageName(stageNo))
-  textImgDraw(selStageTxt)
-  if btnPalNo(p1Cmd) > 0 then
-    selectStage(stageNo)
-    selMode = false
-  end
-end
-
-
-------------------------------------------------------------
-selBG = animNew(sysSff, [[
-100,0, 0,0, -1
-]])
-animSetTile(selBG, 1, 1)
-animSetColorKey(selBG, -1)
-animSetScale(selBG, 0.5, 0.5)
-
-selBox = animNew(sysSff, [[
-100,1, 0,0, -1
-]])
-animSetTile(selBox, 1, 0)
-animSetColorKey(selBox, -1)
-animSetAlpha(selBox, 1, 255)
-animSetPos(selBox, 0, 166)
-animSetWindow(selBox, 5, 0, 151, 240)
-
-selBox2 = animNew(sysSff, [[
-100,1, 0,0, -1
-]])
-animSetTile(selBox2, 1, 0)
-animSetColorKey(selBox2, -1)
-animSetAlpha(selBox2, 1, 255)
-animSetPos(selBox2, 0, 166)
-animSetWindow(selBox2, 164, 0, 151, 240)
-
-function bgSub()
-  animAddPos(selBG, 1, 1)
-  animUpdate(selBG)
-  animDraw(selBG)
-  animAddPos(selBox, 1, 0)
-  animUpdate(selBox)
-  animDraw(selBox)
-  animAddPos(selBox2, 1, 0)
-  animUpdate(selBox2)
-  animDraw(selBox2)
-end
-
-
-------------------------------------------------------------
-watchMode = createTextImg(jgFnt, 0, 1, 'Watch Mode', 100, 80)
-p1VsComTxt = createTextImg(jgFnt, 0, 1, '1P vs. Com', 100, 100)
-p1VsP2 = createTextImg(jgFnt, 0, 1, '1P vs. 2P', 100, 120)
-netplay = createTextImg(jgFnt, 0, 1, 'Netplay', 100, 140)
-portChange = createTextImg(jgFnt, 0, 1, '', 100, 160)
-replay = createTextImg(jgFnt, 0, 1, 'Replay', 100, 180)
-comVsP1 = createTextImg(jgFnt, 0, 1, 'Com vs. 1P', 100, 200)
-autoRandomTest = createTextImg(jgFnt, 0, 1, 'Auto Random Test', 100, 220)
-
-connecting = createTextImg(jgFnt, 0, 1, '', 10, 140)
-loading = createTextImg(jgFnt, 0, 1, 'Loading...', 100, 210)
-
-inputdia = inputDialogNew()
-
 function cmdInput()
-  commandInput(p1Cmd, p1In)
-  commandInput(p2Cmd, p2In)
+	commandInput(p1Cmd, data.p1In)
+	commandInput(p2Cmd, data.p2In)
 end
 
-function main()
-  while true do
-    p1Selected = {}
-    p1SelEnd = false
-    p1Portrait = nil
-
-    p2Selected = {}
-    p2SelEnd = false
-    p2Portrait = nil
-
-    if gameMode == 6 then
-      p1Task = noTask
-      p2Task = p2TmSub
-    else
-      p1Task = p1TmSub
-      p2Task = noTask
-      if gameMode > 1 then p2Task = p2TmSub end
-    end
-
-    refresh()
-
-    commandBufReset(p1Cmd)
-    commandBufReset(p2Cmd)
-
-    selMode = true
-    selectStart()
-
-    ------------------------------------------------------------
-    --メインループ
-    ------------------------------------------------------------
-    while selMode do
-      if esc() then return end
-      bgSub()
-      if p1Portrait then drawPortrait(p1Portrait, 18, 13, 1, 1) end
-      if p2Portrait then drawPortrait(p2Portrait, 302, 13, -1, 1) end
-      drawFace(10, 170, p1SelOffset)
-      drawFace(169, 170, p2SelOffset)
-      if p1SelEnd and p2SelEnd then selStageSub() end
-      p2Task()
-      p1Task()
-      cmdInput()
-      refresh()
-    end
-    for i = 1, 20 do
-      animDraw(selBG)
-      local k = 0
-      for j = 1, #p1Selected do
-        local scl = 10000.0 / (10000.0 - k*i)
-        local tmp = i*k / 20
-        drawPortrait(p1Selected[j], 18 - tmp, 13 + tmp/3, scl, scl)
-        k = k + 48
-      end
-      k = 0
-      for j = 1, #p2Selected do
-        local scl = 10000.0 / (10000.0 - k*i)
-        local tmp = i*k / 20
-        drawPortrait(p2Selected[j], 302 + tmp, 13 + tmp/3, -scl, scl)
-        k = k + 48
-      end
-      p1DrawSelectName()
-      p2DrawSelectName()
-      textImgDraw(loading)
-      refresh()
-    end
-    game()
-    playBGM(bgm)
-  end
+--returns value depending on button pressed (a = 1; a + start = 7 etc.)
+function btnPalNo(cmd)
+	local s = 0
+	if commandGetState(cmd, 'holds') then s = 6 end
+	if commandGetState(cmd, 'a') then return 1 + s end
+	if commandGetState(cmd, 'b') then return 2 + s end
+	if commandGetState(cmd, 'c') then return 3 + s end
+	if commandGetState(cmd, 'x') then return 4 + s end
+	if commandGetState(cmd, 'y') then return 5 + s end
+	if commandGetState(cmd, 'z') then return 6 + s end
+	return 0
 end
 
-function modeSel()
-  while true do
-    exitNetPlay()
-    exitReplay()
-
-    gameMode = 0
-    p1In = 1
-    p2In = 1
-
-    for i = 1, 8 do
-      setCom(i, 8)
-    end
-    setAutoLevel(false)
-    setMatchNo(1)
-    setHomeTeam(1)
-    resetRemapInput()
-
-    textImgSetText(portChange, 'Port Change(' .. getListenPort() .. ')')
-
-    refresh()
-    commandBufReset(p1Cmd)
-
-    while btnPalNo(p1Cmd) <= 0 do
-      if commandGetState(p1Cmd, 'u') then
-        sndPlay(sysSnd, 100, 0)
-        gameMode = gameMode - 1
-      elseif commandGetState(p1Cmd, 'd') then
-        sndPlay(sysSnd, 100, 0)
-        gameMode = gameMode + 1
-      end
-      if gameMode < 0 then
-        gameMode = 7
-      elseif gameMode > 7 then
-        gameMode = 0
-      end
-      textImgDraw(watchMode)
-      textImgDraw(p1VsComTxt)
-      textImgDraw(p1VsP2)
-      textImgDraw(netplay)
-      textImgDraw(portChange)
-      textImgDraw(replay)
-      textImgDraw(comVsP1)
-      textImgDraw(autoRandomTest)
-      animUpdate(p1TmCursor)
-      animPosDraw(p1TmCursor, 95, 77 + 20*gameMode)
-      cmdInput()
-      refresh()
-    end
-    sndPlay(sysSnd, 100, 1)
-
-    local cancel = false
-
-    if gameMode == 0 then
-    elseif gameMode == 1 then
-      setCom(1, 0)
-    elseif gameMode == 2 then
-      p2In = 2
-      setCom(1, 0)
-      setCom(2, 0)
-    elseif gameMode == 3 then
-      p2In = 2
-      setCom(1, 0)
-      setCom(2, 0)
-      inputDialogPopup(inputdia, 'Input Server')
-      while not inputDialogIsDone(inputdia) do
-        refresh()
-      end
-      textImgSetText(
-        connecting,
-        'Now connecting.. ' .. inputDialogGetStr(inputdia)
-        .. ' ' .. getListenPort())
-      enterNetPlay(inputDialogGetStr(inputdia))
-      while not connected() do
-        if esc() then
-          cancel = true
-          break
-        end
-        textImgDraw(connecting)
-        refresh()
-      end
-      if not cancel then
-        init()
-        synchronize()
-        math.randomseed(sszRandom())
-      end
-    elseif gameMode == 4 then
-      inputDialogPopup(inputdia, 'Input Port')
-      while not inputDialogIsDone(inputdia) do
-        refresh()
-      end
-      setListenPort(inputDialogGetStr(inputdia))
-      cancel = true
-    elseif gameMode == 5 then
-      p2In = 2
-      setCom(1, 0)
-      setCom(2, 0)
-      enterReplay('replay/netplay.replay')
-      init()
-      synchronize()
-      math.randomseed(sszRandom())
-    elseif gameMode == 6 then
-      remapInput(1, 2)
-      remapInput(2, 1)
-      p1In = 2
-      p2In = 2
-      setCom(2, 0)
-    elseif gameMode == 7 then
-      script.randomtest.run()
-      cancel = true
-    end
-    if not cancel then
-      main()
-    end
-  end
+--animDraw at specified coordinates
+function animPosDraw(a, x, y)
+	animSetPos(a, x, y)
+	animUpdate(a)
+	animDraw(a)
 end
 
-modeSel()
+--textImgDraw at specified coordinates
+function textImgPosDraw(ti, x, y)
+	textImgSetPos(ti, x, y)
+	textImgDraw(ti)
+end
 
+--shortcut for creating new text with several parameters
+function createTextImg(font, bank, aline, text, x, y, scaleX, scaleY)
+	local ti = textImgNew()
+	textImgSetFont(ti, font)
+	textImgSetBank(ti, bank)
+	textImgSetAlign(ti, aline)
+	textImgSetText(ti, text)
+	textImgSetPos(ti, x, y)
+	scaleX = scaleX or 1
+	scaleY = scaleY or 1
+	textImgSetScale(ti, scaleX, scaleY)
+	return ti
+end
+
+--shortcut for updating text with several parameters
+function f_updateTextImg(animName, font, bank, aline, text, x, y, scaleX, scaleY)
+	textImgSetFont(animName, font)
+	textImgSetBank(animName, bank)
+	textImgSetAlign(animName, aline)
+	textImgSetText(animName, text)
+	textImgSetPos(animName, x, y)
+	scaleX = scaleX or 1
+	scaleY = scaleY or 1
+	textImgSetScale(animName, scaleX, scaleY)
+	return animName
+end
+
+--shortcut for updating velocity
+function f_animVelocity(animName, addX, addY)
+	animAddPos(animName, addX, addY)
+	animUpdate(animName)
+	return animName
+end
+
+--dynamically adjusts alpha blending each time called based on specified values
+alpha1cur = 0
+alpha2cur = 0
+alpha1add = true
+alpha2add = true
+function f_dynamicAlpha(animName, r1min, r1max, r1step, r2min, r2max, r2step)
+	if r1step == 0 then alpha1cur = r1max end
+	if alpha1cur < r1max and alpha1add then
+		alpha1cur = alpha1cur + r1step
+		if alpha1cur >= r1max then
+			alpha1add = false
+		end
+	elseif alpha1cur > r1min and not alpha1add then
+		alpha1cur = alpha1cur - r1step
+		if alpha1cur <= r1min then
+			alpha1add = true
+		end
+	end
+	if r2step == 0 then alpha2cur = r2max end
+	if alpha2cur < r2max and alpha2add then
+		alpha2cur = alpha2cur + r2step
+		if alpha2cur >= r2max then
+			alpha2add = false
+		end
+	elseif alpha2cur > r2min and not alpha2add then
+		alpha2cur = alpha2cur - r2step
+		if alpha2cur <= r2min then
+			alpha2add = true
+		end
+	end
+	animSetAlpha(animName, alpha1cur, alpha2cur)
+end
+
+--Convert number to name and get rid of the ""
+function f_getName(cel)
+	local tmp = getCharName(cel)
+	tmp = tmp:gsub('^["%s]*(.-)["%s]*$', '%1')
+	return tmp
+end
+
+--randomizes table content
+function f_shuffleTable(t)
+    local rand = math.random 
+    assert(t, "f_shuffleTable() expected a table, got nil")
+    local iterations = #t
+    local j
+    for i = iterations, 2, -1 do
+        j = rand(i)
+        t[i], t[j] = t[j], t[i]
+    end
+end
+
+--prints "t" table content into "toFile" file
+function f_printTable(t, toFile)
+	local toFile = toFile or 'debug/table_print.txt'
+	local txt = ''
+	local print_t_cache = {}
+	local function sub_print_t(t, indent)
+		if print_t_cache[tostring(t)] then
+			txt = txt .. indent .. '*' .. tostring(t) .. '\n'
+		else
+			print_t_cache[tostring(t)] = true
+			if type(t) == 'table' then
+				for pos, val in pairs(t) do
+					if type(val) == 'table' then
+						txt = txt .. indent .. '[' .. pos .. '] => ' .. tostring(t) .. ' {' .. '\n'
+						sub_print_t(val, indent .. string.rep(' ', string.len(pos)+8))
+						txt = txt .. indent .. string.rep(' ', string.len(pos)+6) .. '}' .. '\n'
+					elseif type(val) == 'string' then
+						txt = txt .. indent .. '[' .. pos .. '] => "' .. val .. '"' .. '\n'
+					else
+						txt = txt .. indent .. '[' .. pos .. '] => ' .. tostring(val) ..'\n'
+					end
+				end
+			else
+				txt = txt .. indent .. tostring(t) .. '\n'
+			end
+		end
+	end
+	if type(t) == 'table' then
+		txt = txt .. tostring(t) .. ' {' .. '\n'
+		sub_print_t(t, '  ')
+		txt = txt .. '}' .. '\n'
+	else
+		sub_print_t(t, '  ')
+	end
+	local file = io.open(toFile,"w+")
+	file:write(txt)
+	file:close()
+end
+
+--prints "v" variable into "toFile" file
+function f_printVar(v, toFile)
+	local toFile = toFile or 'debug/var_print.txt'
+	local file = io.open(toFile,"w+")
+	file:write(v)
+	file:close()
+end
+
+--generate anim from table
+function f_animFromTable(t, sff, x, y, scaleX, scaleY, facing, infFrame)
+	infFrame = infFrame or 1
+	scaleX = scaleX or 1
+	scaleY = scaleY or 1
+	facing = facing or 0
+	local anim = ''
+	local length = 0
+	for i=1, #t do
+		anim = anim .. t[i] .. ', ' .. facing .. '\n'
+		if not t[i]:match('loopstart') then
+			local tmp = t[i]:gsub('^.-([^,%s]+)$','%1')
+			if tonumber(tmp) == -1 then
+				tmp = infFrame
+			end
+			length = length + tmp
+		end
+	end
+	local id = animNew(sff, anim)
+	animAddPos(id, x, y)
+	animSetScale(id, scaleX, scaleY)
+	animUpdate(id)
+	return id, tonumber(length)
+end
+
+--generate fading animation
+function f_fadeAnim(ticks, fadeType, color, sff)
+	local anim = ''
+	if color == 'white' then
+		if fadeType == 'fadeout' then
+			for i=1, ticks do
+				anim = anim .. '0,1, 0,0, 1, 0, AS' .. math.floor(256/ticks*i) .. 'D256\n'
+			end
+			anim = anim .. '0,1, 0,0, -1, 0, AS256D256'
+		else --fadein
+			for i=ticks, 1, -1 do
+				anim = anim .. '0,1, 0,0, 1, 0, AS' .. math.floor(256/ticks*i) .. 'D256\n'
+			end
+			anim = anim .. '0,1, 0,0, -1, 0, AS0D256'
+		end
+	else --black
+		if fadeType == 'fadeout' then
+			for i=ticks, 1, -1 do
+				anim = anim .. '0,0, 0,0, 1, 0, AS256D' .. math.floor(256/ticks*i) .. '\n'
+			end
+			anim = anim .. '0,0, 0,0, -1, 0, AS256D0'
+		else --fadein
+			for i=1, ticks do
+				anim = anim .. '0,0, 0,0, 1, 0, AS256D' .. math.floor(256/ticks*i) .. '\n'
+			end
+			anim = anim .. '0,0, 0,0, -1, 0, AS256D256'
+		end
+	end
+	anim = animNew(sff, anim)
+	animUpdate(anim)
+	return anim, ticks
+end
+
+--remove duplicated string pattern
+function f_uniq(str, pattern, subpattern)
+	local out = {}
+	for s in str:gmatch(pattern) do
+		local s2 = s:match(subpattern)
+		if not f_contains(out, s2) then out[#out+1] = s end
+	end
+	return table.concat(out)
+end
+
+function f_contains(t, val)
+	for k,v in pairs(t) do
+		--if v == val then
+		if v:match(val) then
+			return true
+		end
+	end
+	return false
+end
+
+--- Draw string letter by letter + wrap lines.
+-- @data: text data
+-- @str: string (text you want to draw)
+-- @counter: external counter (values should be increased each frame by 1 starting from 1)
+-- @x: first line X position
+-- @y: first line Y position
+-- @spacing: spacing between lines (rendering Y position increasement for each line)
+-- @delay (optional): ticks (frames) delay between each letter is rendered, defaults to 0 (all text rendered immediately)
+-- @limit (optional): maximum line length (string wraps when reached), if omitted line wraps only if string contains '\n'
+function f_textRender(data, str, counter, x, y, spacing, delay, limit)
+	local delay = delay or 0
+	local limit = limit or -1
+	str = tostring(str)
+	if limit == -1 then
+		str = str:gsub('\\n', '\n')
+	else
+		str = str:gsub('%s*\\n%s*', ' ')
+		if math.floor(#str / limit) + 1 > 1 then
+			str = f_wrap(str, limit, indent, indent1)
+		end
+	end
+	local subEnd = math.floor(#str - (#str - counter/delay))
+	local t = {}
+	for line in str:gmatch('([^\r\n]*)[\r\n]?') do
+		t[#t+1] = line
+	end
+	t[#t] = nil --get rid of the last blank line
+	local lengthCnt = 0
+	for i=1, #t do
+		if subEnd < #str then
+			local length = #t[i]
+			if i > 1 and i <= #t then
+				length = length + 1
+			end
+			lengthCnt = lengthCnt + length
+			if subEnd < lengthCnt then
+				t[i] = t[i]:sub(0, subEnd - lengthCnt)
+			end
+		end
+		textImgSetText(data, t[i])
+		textImgSetPos(data, x, y + spacing * (i - 1))
+		textImgDraw(data)
+	end
+end
+
+--- Wrap a long string.
+-- source: http://lua-users.org/wiki/StringRecipes
+-- @str: string to wrap
+-- @limit: maximum line length
+-- @indent: regular indentation
+-- @indent1: indentation of first line
+function f_wrap(str, limit, indent, indent1)
+	indent = indent or ''
+	indent1 = indent1 or indent
+	limit = limit or 72
+	local here = 1-#indent1
+	return indent1 .. str:gsub("(%s+)()(%S+)()",
+	function(sp, st, word, fi)
+		if fi - here > limit then
+			here = st - #indent
+			return '\n' .. indent .. word
+		end
+	end)
+end
+
+txt_loading = createTextImg(font1, 0, -1, 'LOADING...', 310, 230)
+
+--;===========================================================
+--; LOAD ADDITIONAL SCRIPTS
+--;===========================================================
+require('script.randomtest')
+assert(loadfile('script/parser.lua'))()
+require('script.options')
+require('script.netplay')
+require('script.extras')
+require('script.select')
+require('script.continue')
+require('script.storyboard')
+
+--;===========================================================
+--; TITLE BACKGROUND DEFINITION
+--;===========================================================
+--Buttons Background
+titleBG0 = animNew(sysSff, [[
+5,1, 0,145, -1
+]])
+animAddPos(titleBG0, 160, 0)
+animSetTile(titleBG0, 1, 1)
+animSetWindow(titleBG0, 0, 145, 320, 75)
+--parallax is not supported in ikemen
+--type  = parallax
+--width = 400, 1200
+--yscalestart = 100
+--yscaledelta = 1
+
+--Buttons Background (fade)
+titleBG1 = animNew(sysSff, [[
+5,2, -160,145, -1, 0, s
+]])
+animAddPos(titleBG1, 160, 0)
+animUpdate(titleBG1)
+
+--Background Top
+titleBG2 = animNew(sysSff, [[
+5,0, 0,10, -1
+]])
+animAddPos(titleBG2, 160, 0)
+animSetTile(titleBG2, 1, 2)
+
+--Logo
+titleBG3 = animNew(sysSff, [[
+0,0, 0,40, -1, 0, a
+]])
+animAddPos(titleBG3, 160, 0)
+animUpdate(titleBG3)
+
+--Background Middle (black text cover)
+titleBG4 = animNew(sysSff, [[
+5,1, 0,145, -1
+]])
+animAddPos(titleBG4, 160, 0)
+animSetTile(titleBG4, 1, 1)
+animSetWindow(titleBG4, 0, 138, 320, 7)
+animSetAlpha(titleBG4, 0, 0)
+animUpdate(titleBG4)
+
+--Background Bottom (black text cover)
+titleBG5 = animNew(sysSff, [[
+5,1, 0,145, -1
+]])
+animAddPos(titleBG5, 160, 0)
+animSetTile(titleBG5, 1, 1)
+animSetWindow(titleBG5, 0, 220, 320, 20)
+animSetAlpha(titleBG5, 0, 0)
+animUpdate(titleBG5)
+
+--Background Footer
+titleBG6 = animNew(sysSff, [[
+300,0, 0,233, -1
+]])
+animAddPos(titleBG6, 160, 0)
+animSetTile(titleBG6, 1, 0)
+animUpdate(titleBG6)
+
+--Cursor Box
+cursorBox = animNew(sysSff, [[
+100,1, 0,0, -1
+]])
+animSetTile(cursorBox, 1, 1)
+
+txt_titleFt = createTextImg(font1, 0, 1, 'I.K.E.M.E.N. by SUEHIRO', 2, 240)
+txt_titleFt2 = createTextImg(font1, 0, -1, 'https://osdn.net/users/supersuehiro/', 319, 240)
+
+--;===========================================================
+--; MAIN MENU LOOP
+--;===========================================================
+txt_mainSelect = createTextImg(jgFnt, 0, 0, '', 159, 13)
+t_mainMenu = {
+	{id = textImgNew(), text = 'ARCADE'},
+	{id = textImgNew(), text = 'VS MODE'},
+	{id = textImgNew(), text = 'ONLINE'},
+	{id = textImgNew(), text = 'TEAM CO-OP'},
+	{id = textImgNew(), text = 'SURVIVAL'},
+	{id = textImgNew(), text = 'SURVIVAL CO-OP'},
+	{id = textImgNew(), text = 'TRAINING'},
+	{id = textImgNew(), text = 'WATCH'},
+	{id = textImgNew(), text = 'EXTRAS'},
+	{id = textImgNew(), text = 'OPTIONS'},
+	{id = textImgNew(), text = 'EXIT'},
+}
+
+function f_default()
+	setAutoLevel(false) --generate autolevel.txt in game dir
+	setHomeTeam(2) --P2 side considered the home team: http://mugenguild.com/forum/topics/ishometeam-triggers-169132.0.html
+	resetRemapInput()
+	--settings adjustable via options
+	setAutoguard(1, data.autoguard)
+	setAutoguard(2, data.autoguard)
+	setRoundTime(data.roundTime * 60)
+	setLifeMul(data.lifeMul / 100)
+	setTeam1VS2Life(data.team1VS2Life / 100)
+	setTurnsRecoveryRate(1.0 / data.turnsRecoveryRate)
+	setSharedLife(data.teamLifeShare)
+	--default values for all modes
+	data.p1Char = nil --no predefined P1 character (assigned via table: {X, Y, (...)})
+	data.p2Char = nil --no predefined P2 character (assigned via table: {X, Y, (...)})
+	data.p1TeamMenu = nil --no predefined P1 team mode (assigned via table: {mode = X, chars = Y})
+	data.p2TeamMenu = nil --no predefined P2 team mode (assigned via table: {mode = X, chars = Y})
+	data.aiFight = false --AI = data.difficulty for all characters disabled
+	data.stageMenu = false --stage selection disabled
+	data.p2Faces = false --additional window with P2 select screen small portraits (faces) disabled
+	data.coop = false --P2 fighting on P1 side disabled
+	data.p2SelectMenu = true --P2 character selection enabled
+	data.versusScreen = true --versus screen enabled
+	data.p1In = 1 --P1 controls P1 side of the select screen
+	data.p2In = 0 --P2 controls in the select screen disabled
+	data.gameMode = '' --additional variable used to distinguish modes in select screen
+end
+
+function f_mainMenu()
+	cmdInput()
+	local cursorPosY = 0
+	local moveTxt = 0
+	local mainMenu = 1
+	script.storyboard.f_storyboard('data/logo.def')
+	script.storyboard.f_storyboard('data/intro.def')
+	data.fadeTitle = f_fadeAnim(10, 'fadein', 'black', fadeSff) --global variable so we can set it also from within select.lua
+	while true do
+		if esc() then
+			os.exit()
+		elseif commandGetState(p1Cmd, 'u') then
+			sndPlay(sysSnd, 100, 0)
+			mainMenu = mainMenu - 1
+		elseif commandGetState(p1Cmd, 'd') then
+			sndPlay(sysSnd, 100, 0)
+			mainMenu = mainMenu + 1
+		end
+		--mode titles/cursor position calculation
+		if mainMenu < 1 then
+			mainMenu = #t_mainMenu
+			if #t_mainMenu > 4 then
+				cursorPosY = 4
+			else
+				cursorPosY = #t_mainMenu-1
+			end
+		elseif mainMenu > #t_mainMenu then
+			mainMenu = 1
+			cursorPosY = 0
+		elseif commandGetState(p1Cmd, 'u') and cursorPosY > 0 then
+			cursorPosY = cursorPosY - 1
+		elseif commandGetState(p1Cmd, 'd') and cursorPosY < 4 then
+			cursorPosY = cursorPosY + 1
+		end
+		if cursorPosY == 4 then
+			moveTxt = (mainMenu - 5) * 13
+		elseif cursorPosY == 0 then
+			moveTxt = (mainMenu - 1) * 13
+		end
+		--mode selected
+		if btnPalNo(p1Cmd) > 0 then
+			f_default()
+			--ARCADE
+			if mainMenu == 1 then
+				sndPlay(sysSnd, 100, 1)
+				data.p2In = 1 --P1 controls P2 side of the select screen
+				data.p2SelectMenu = false --P2 character selection disabled
+				data.coinsLeft = data.coins - 1 --amount of continues
+				data.gameMode = 'arcade' --mode recognized in select screen as 'arcade'
+				textImgSetText(txt_mainSelect, 'Arcade') --message displayed on top of select screen
+				script.select.f_selectAdvance() --start f_selectAdvance() function from script/select.lua
+			--VS MODE
+			elseif mainMenu == 2 then
+				sndPlay(sysSnd, 100, 1)
+				setHomeTeam(1) --P1 side considered the home team
+				data.p2In = 2 --P2 controls P2 side of the select screen
+				data.stageMenu = true --stage selection enabled
+				data.p2Faces = true --additional window with P2 select screen small portraits (faces) enabled
+				textImgSetText(txt_mainSelect, 'Versus Mode')
+				script.select.f_selectSimple() --start f_selectSimple() function from script/select.lua
+			--ONLINE
+			elseif mainMenu == 3 then
+				sndPlay(sysSnd, 100, 1)
+				script.netplay.f_mainNetplay() --start f_mainNetplay() function from script/netplay.lua
+			--TEAM CO-OP
+			elseif mainMenu == 4 then
+				sndPlay(sysSnd, 100, 1)
+				data.p2In = 2
+				data.p2Faces = true
+				data.coop = true --P2 fighting on P1 side enabled
+				data.coinsLeft = data.coins - 1
+				data.gameMode = 'arcade'
+				textImgSetText(txt_mainSelect, 'Team Cooperative')
+				script.select.f_selectAdvance()
+			--SURVIVAL
+			elseif mainMenu == 5 then
+				sndPlay(sysSnd, 100, 1)
+				data.p2In = 1
+				data.p2SelectMenu = false
+				data.coinsLeft = 0
+				data.gameMode = 'survival'
+				textImgSetText(txt_mainSelect, 'Survival')
+				script.select.f_selectAdvance()
+			--SURVIVAL CO-OP
+			elseif mainMenu == 6 then
+				sndPlay(sysSnd, 100, 1)
+				data.p2In = 2
+				data.p2Faces = true
+				data.coop = true
+				data.coinsLeft = 0
+				data.gameMode = 'survival'
+				textImgSetText(txt_mainSelect, 'Survival')
+				script.select.f_selectAdvance()
+			--TRAINING
+			elseif mainMenu == 7 then
+				sndPlay(sysSnd, 100, 1)
+				setRoundTime(-1) --round time disabled
+				data.p2In = 2
+				data.stageMenu = true
+				data.versusScreen = false --versus screen disabled
+				data.p2TeamMenu = {mode = 0, chars = 1} --predefined P2 team mode as Single, 1 Character
+				data.p2Char = {t_charAdd['training']} --predefined P2 character as Training by stupa
+				data.gameMode = 'training'
+				textImgSetText(txt_mainSelect, 'Training Mode')
+				script.select.f_selectSimple()
+			--WATCH
+			elseif mainMenu == 8 then
+				sndPlay(sysSnd, 100, 1)
+				data.p2In = 1
+				data.aiFight = true --AI = data.difficulty for all characters enabled
+				data.stageMenu = true
+				data.p2Faces = true
+				textImgSetText(txt_mainSelect, 'Watch Mode')
+				script.select.f_selectSimple()
+			--EXTRAS
+			elseif mainMenu == 9 then
+				sndPlay(sysSnd, 100, 1)
+				script.extras.f_mainExtras() --start f_mainExtras() function from script/extras.lua
+			--OPTIONS
+			elseif mainMenu == 10 then
+				sndPlay(sysSnd, 100, 1)
+				script.options.f_mainCfg() --start f_mainCfg() function from script/options.lua
+			--EXIT
+			else
+				os.exit()
+			end
+		end
+		animDraw(f_animVelocity(titleBG0, -2.15, 0))
+		for i=1, #t_mainMenu do
+			if i == mainMenu then
+				bank = 5
+			else
+				bank = 0
+			end
+			textImgDraw(f_updateTextImg(t_mainMenu[i].id, jgFnt, bank, 0, t_mainMenu[i].text, 159, 144+i*13-moveTxt))
+		end
+		animSetWindow(cursorBox, 101,147+cursorPosY*13, 116,13)
+		f_dynamicAlpha(cursorBox, 20,100,5, 255,255,0)
+		animDraw(f_animVelocity(cursorBox, -1, -1))
+		animDraw(titleBG1)
+		animAddPos(titleBG2, -1, 0)
+		animUpdate(titleBG2)
+		animDraw(titleBG2)
+		animDraw(titleBG3)
+		animDraw(titleBG4)
+		animDraw(titleBG5)
+		animDraw(titleBG6)
+		textImgDraw(txt_titleFt)
+		textImgDraw(txt_titleFt2)
+		animDraw(data.fadeTitle)
+		animUpdate(data.fadeTitle)
+		cmdInput()
+		refresh()
+	end
+end
+
+--;===========================================================
+--; INITIALIZE LOOPS
+--;===========================================================
+
+f_mainMenu()
