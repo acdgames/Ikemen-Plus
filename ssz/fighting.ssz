@@ -324,34 +324,36 @@ void game()
           case (int).com.TeamMode::Simul:
             lm *= .com.team1VS2Life;
           case (int).com.TeamMode::Turns:
-            if(.com.numturns[i+1&1] < .chr.fight~ro.match_wins){
+            if(.com.numturns[i+1&1] < .chr.fight~ro.match_wins && .com.sharedLife){
               lm =
                 lm*(float).com.numturns[i+1&1]
                 / (float).chr.fight~ro.match_wins;
             }
           }
         case (int).com.TeamMode::Simul:
-          switch(.com.tmode[i+1&1]){
-          case (int).com.TeamMode::Simul:
-            if(.com.numSimul[i+1&1] < .com.numSimul[i&1]){
-              lm = lm*(float).com.numSimul[i+1&1] / (float).com.numSimul[i&1];
+          if(.com.sharedLife){
+            switch(.com.tmode[i+1&1]){
+            case (int).com.TeamMode::Simul:
+              if(.com.numSimul[i+1&1] < .com.numSimul[i&1]){
+                lm = lm*(float).com.numSimul[i+1&1] / (float).com.numSimul[i&1];
+              }
+            case (int).com.TeamMode::Turns:
+              if(
+                .com.numturns[i+1&1]
+                < .com.numSimul[i&1] * .chr.fight~ro.match_wins)
+              {
+                lm =
+                  lm*(float).com.numturns[i+1&1]
+                  / (float)(.com.numSimul[i&1] * .chr.fight~ro.match_wins);
+              }
+            default:
+              lm /= (float).com.numSimul[i&1];
             }
-          case (int).com.TeamMode::Turns:
-            if(
-              .com.numturns[i+1&1]
-              < .com.numSimul[i&1] * .chr.fight~ro.match_wins)
-            {
-              lm =
-                lm*(float).com.numturns[i+1&1]
-                / (float)(.com.numSimul[i&1] * .chr.fight~ro.match_wins);
-            }
-          default:
-            lm /= (float).com.numSimul[i&1];
           }
         case (int).com.TeamMode::Turns:
           switch(.com.tmode[i+1&1]){
           case (int).com.TeamMode::Single:
-            if(.chr.fight~ro.match_wins < .com.numturns[i&1]){
+            if(.chr.fight~ro.match_wins < .com.numturns[i&1] && .com.sharedLife){
               lm =
                 lm * (float).chr.fight~ro.match_wins
                 / (float).com.numturns[i&1];
@@ -367,7 +369,7 @@ void game()
                 / (float).com.numturns[i&1];
             }
           case (int).com.TeamMode::Turns:
-            if(.com.numturns[i+1&1] < .com.numturns[i&1]){
+            if(.com.numturns[i+1&1] < .com.numturns[i&1] && .com.sharedLife){
               lm = lm*(float).com.numturns[i+1&1] / (float).com.numturns[i&1];
             }
           }
@@ -399,7 +401,7 @@ void game()
       .chr.stg~action();
       i++;
     while i < stagetime:}
-    if(.com.round == 1) .snd.bgm~play(.chr.stg~bgmusic);
+    //if(.com.round == 1) .snd.bgm~play(.chr.stg~bgmusic);
     .com.cam.init();
     .com.screenleft = (float).chr.stg~screenleft * .chr.stg~localscl;
     .com.screenright = (float).chr.stg~screenright * .chr.stg~localscl;

@@ -14,6 +14,7 @@ public int roundTime = 999 * 6;
 public float life = 1.0;
 public float team1VS2Life = 1.0;
 public float turnsRecoveryRate = 1.0 / 300.0;
+public bool sharedLife = true;
 
 //チームモードの種類
 |TeamMode
@@ -27,7 +28,7 @@ public bool clsndraw = false;
 //デバッグ表示フラグ
 public bool debugdraw = false;
 
-const int maxSimul = 4;
+const int maxSimul = 10;
 public ^int numSimul.new(2);
 numSimul[0] = numSimul[1] = 2;
 
