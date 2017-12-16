@@ -391,10 +391,10 @@ function f_mainCfg()
 				data.sffConversion = true
 				--config.ssz
 				f_inputDefault()
-				b_saveMemory = true
+				b_saveMemory = false
 				s_saveMemory = 'No'
-				b_openGL = false
-				s_openGL = 'No'
+				b_openGL = true
+				s_openGL = 'Yes'
 				resolutionWidth = 960
 				resolutionHeight = 720
 				gameSpeed = 60
@@ -1029,6 +1029,7 @@ t_resCfg = {
 	{id = '', x = 800,  y = 600,  text = '800x600     (4:3 SVGA)'},
 	{id = '', x = 1024, y = 768,  text = '1024x768    (4:3 XGA)'},
 	{id = '', x = 1152, y = 864,  text = '1152x864    (4:3 XGA+)'},
+	{id = '', x = 1280, y = 960,  text = '1280x960    (4:3 Quad-VGA)'},
 	{id = '', x = 1600, y = 1200, text = '1600x1200   (4:3 UXGA)'},
 	{id = '', x = 960,  y = 720,  text = '960x720     (4:3 HD)'},
 	{id = '', x = 1200, y = 900,  text = '1200x900    (4:3 HD+)'},
@@ -1110,8 +1111,8 @@ function f_resCfg()
 			end
 		end
 		animDraw(f_animVelocity(optionsBG0, -1, -1))
-		if moveTxt == 180 then
-			animSetWindow(optionsBG1, 80,20, 160,210)
+		if #t_resCfg > 14 and moveTxt == (#t_resCfg - 14) * 15 then
+			animSetWindow(optionsBG1, 80,20, 160,14*15)
 		else
 			animSetWindow(optionsBG1, 80,20, 160,#t_resCfg*15)
 		end
