@@ -86,12 +86,19 @@ function f_mainExtras()
 			--REPLAY
 			elseif mainExtras == 5 then
 				sndPlay(sysSnd, 100, 1)
-				--missing code
+				
+				data.p2In = 2
+				data.stageMenu = true
+				data.p2Faces = true
+
 				textImgSetText(txt_mainSelect, 'Online Versus')
 				enterReplay('replay/netplay.replay')
 				synchronize()
 				math.randomseed(sszRandom())
-				--script.select.f_selectSimple()
+				script.select.f_selectSimple()
+
+				exitNetPlay()
+    			exitReplay()
 			--DEMO
 			elseif mainExtras == 6 then
 				sndPlay(sysSnd, 100, 1)
