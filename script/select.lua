@@ -341,10 +341,12 @@ function f_selectSimple()
 	stageList = 0
 	cmdInput()
 	while true do
+		playBGM(bgmSelect)
 		f_selectReset()
 		while not selScreenEnd do
 			if esc() then
 				sndPlay(sysSnd, 100, 2)
+				playBGM(bgmTitle)
 				return
 			end
 			f_selectScreen()
@@ -381,10 +383,12 @@ function f_selectAdvance()
 	f_selectReset()
 	stageEnd = true
 	while true do
+		playBGM(bgmSelect)
 		selectStart()
 		while not selScreenEnd do
 			if esc() then
 				sndPlay(sysSnd, 100, 2)
+				playBGM(bgmTitle)
 				return
 			end
 			f_selectScreen()
@@ -416,6 +420,7 @@ function f_selectAdvance()
 			script.storyboard.f_storyboard('data/intro.def')
 			--reset title screen fading
 			data.fadeTitle = f_fadeAnim(10, 'fadein', 'black', fadeSff)
+			playBGM(bgmTitle)
 			return
 		--player won (also if lost in VS 100 Kumite)
 		elseif winner == 1 or data.gameMode == '100kumite' then
@@ -450,6 +455,7 @@ function f_selectAdvance()
 				script.storyboard.f_storyboard('data/intro.def')
 				--reset title screen fading
 				data.fadeTitle = f_fadeAnim(10, 'fadein', 'black', fadeSff)
+				playBGM(bgmTitle)
 				return
 			--next match available
 			else
@@ -473,6 +479,7 @@ function f_selectAdvance()
 			script.storyboard.f_storyboard('data/intro.def')
 			--reset title screen fading
 			data.fadeTitle = f_fadeAnim(10, 'fadein', 'black', fadeSff)
+			playBGM(bgmTitle)
 			return
 		--player lost but can continue
 		else
@@ -484,11 +491,12 @@ function f_selectAdvance()
 			end
 			--continue screen
 			script.continue.f_continue()
-			if data.continue == 2 then
+			if data.continue == 2 then --Continue = NO
 				--intro
 				script.storyboard.f_storyboard('data/intro.def')
 				--reset title screen fading
 				data.fadeTitle = f_fadeAnim(10, 'fadein', 'black', fadeSff)
+				playBGM(bgmTitle)
 				return
 			end
 			if data.contSelection then --true if 'Char change at Continue' option is enabled
@@ -502,10 +510,15 @@ function f_selectAdvance()
 				while not selScreenEnd do
 					if esc() then
 						sndPlay(sysSnd, 100, 2)
+						playBGM(bgmTitle)
 						return
 					end
 					f_selectScreen()
 				end
+			elseif esc() then
+				sndPlay(sysSnd, 100, 2)
+				playBGM(bgmTitle)
+				return
 			end
 		end
 		--assign enemy team
@@ -1460,6 +1473,7 @@ function f_selectVersus()
 			refresh()
 		end
 	else
+		playBGM(bgmVS)
 	--VS Logo
 		versusBG4 = animNew(sysSff, [[
 200,4, 0,0, 1
@@ -1682,6 +1696,7 @@ end
 txt_winquote = createTextImg(jgFnt, 0, 1, '', 0, 0)
 
 function f_selectWin()
+	playBGM(bgmVictory)
 	local txt = ''
 	if winner == 1 then
 		txt = f_winParse(t_selChars[data.t_p1selected[1].cel+1], t_selChars[data.t_p2selected[1].cel+1], data.t_p2selected[1].pal, #data.t_p2selected)

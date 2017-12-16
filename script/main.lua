@@ -32,8 +32,10 @@ survBarsFnt = fontNew('font/survival_bars.fnt')
 survNumFnt = fontNew('font/survival_nums.fnt')
 
 --Music
-bgm = 'sound/Menu.mp3'
-bgmSelect = 'sound/Char Select.mp3'
+bgmTitle = 'sound/Title.mp3'
+bgmSelect = 'sound/Select.mp3'
+bgmVS = 'sound/VS.mp3'
+bgmVictory = 'sound/Victory.mp3'
 
 --;===========================================================
 --; COMMON SECTION
@@ -516,6 +518,7 @@ function f_mainMenu()
 	script.storyboard.f_storyboard('data/logo.def')
 	script.storyboard.f_storyboard('data/intro.def')
 	data.fadeTitle = f_fadeAnim(10, 'fadein', 'black', fadeSff) --global variable so we can set it also from within select.lua
+	playBGM(bgmTitle)
 	while true do
 		if esc() then
 			os.exit()

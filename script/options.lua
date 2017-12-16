@@ -16,6 +16,7 @@ file:close()
 resolutionWidth = tonumber(s_configSSZ:match('const int Width%s*=%s*(%d+)'))
 resolutionHeight = tonumber(s_configSSZ:match('const int Height%s*=%s*(%d+)'))
 gameSpeed = tonumber(s_configSSZ:match('const int GameSpeed%s*=%s*(%d+)'))
+b_saveMemory = s_configSSZ:match('const bool SaveMemory%s*=%s*([^;%s]+)')
 b_openGL = s_configSSZ:match('const bool OpenGL%s*=%s*([^;%s]+)')
 
 -- Data loading from sound.ssz
@@ -52,6 +53,13 @@ elseif channels == 2 then
 	s_channels = 'stereo'
 elseif channels == 1 then
 	s_channels = 'mono'
+end
+if b_saveMemory == 'true' then
+	b_saveMemory = true
+	s_saveMemory = 'Yes'
+elseif b_saveMemory == 'false' then
+	b_saveMemory = false
+	s_saveMemory = 'No'
 end
 if b_openGL == 'true' then
 	b_openGL = true
@@ -167,6 +175,11 @@ function f_saveCfg()
 	file:write(s_dataLUA)
 	file:close()
 	-- Data saving to config.ssz
+	if b_saveMemory then
+		s_saveMemory = s_saveMemory:gsub('const bool SaveMemory%s*=%s*[^;%s]+', 'const bool SaveMemory = true')
+	else
+		s_saveMemory = s_saveMemory:gsub('const bool SaveMemory%s*=%s*[^;%s]+', 'const bool SaveMemory = false')
+	end
 	if b_openGL then
 		s_configSSZ = s_configSSZ:gsub('const bool OpenGL%s*=%s*[^;%s]+', 'const bool OpenGL = true')
 	else
@@ -378,6 +391,8 @@ function f_mainCfg()
 				data.sffConversion = true
 				--config.ssz
 				f_inputDefault()
+				b_saveMemory = true
+				s_saveMemory = 'No'
 				b_openGL = false
 				s_openGL = 'No'
 				resolutionWidth = 960
@@ -870,6 +885,7 @@ txt_videoCfg = createTextImg(jgFnt, 0, 0, 'VIDEO SETTINGS', 159, 13)
 t_videoCfg = {
 	{id = '', text = 'Resolution',  varID = textImgNew(), varText = resolutionWidth .. 'x' .. resolutionHeight},
 	{id = '', text = 'OpeanGL 2.0', varID = textImgNew(), varText = s_openGL},
+	{id = '', text = 'Save memory', varID = textImgNew(), varText = s_saveMemory},
 	{id = '', text = 'Back'},
 }
 for i=1, #t_videoCfg do
@@ -908,8 +924,22 @@ function f_videoCfg()
 			end
 			modified = 1
 			needReload = 1
+		--Save memory
+		elseif videoCfg == 3 and (commandGetState(p1Cmd, 'r') or commandGetState(p1Cmd, 'l') or btnPalNo(p1Cmd) > 0) then
+			sndPlay(sysSnd, 100, 0)
+			if b_saveMemory == false then
+				b_saveMemory = true
+				s_saveMemory = 'Yes'
+				f_memWarning()
+			else
+				b_saveMemory = false
+				s_saveMemory = 'No'
+				f_memWarning()
+			end
+			modified = 1
+			needReload = 1
 		--Back
-		elseif videoCfg == 3 and btnPalNo(p1Cmd) > 0 then
+		elseif videoCfg == 4 and btnPalNo(p1Cmd) > 0 then
 			sndPlay(sysSnd, 100, 2)
 			break
 		end
@@ -919,6 +949,7 @@ function f_videoCfg()
 		textImgDraw(txt_videoCfg)
 		t_videoCfg[1].varText = resolutionWidth .. 'x' .. resolutionHeight
 		t_videoCfg[2].varText = s_openGL
+		t_videoCfg[3].varText = s_saveMemory
 		for i=1, #t_videoCfg do
 			textImgDraw(t_videoCfg[i].id)
 			if t_videoCfg[i].varID ~= nil then
@@ -962,21 +993,60 @@ function f_glWarning()
 	end
 end
 
+t_memWarning = {
+	{id = '', text = "Enabling 'Save memory' option negatively affects FPS."},
+	{id = '', text = "It's not yet known if disabling it has any drawbacks."},
+}
+for i=1, #t_memWarning do
+	t_memWarning[i].id = createTextImg(font2, 0, 1, t_memWarning[i].text, 25, 15+i*15)
+end
+function f_memWarning()
+	cmdInput()
+	while true do
+		if btnPalNo(p1Cmd) > 0 or esc() then
+			sndPlay(sysSnd, 100, 0)
+			break
+		end
+		animDraw(f_animVelocity(optionsBG0, -1, -1))
+		animSetWindow(optionsBG1, 20,20, 280,#t_memWarning*15)
+		animDraw(f_animVelocity(optionsBG1, -1, -1))
+		textImgDraw(txt_Warning)
+		for i=1, #t_memWarning do
+			textImgDraw(t_memWarning[i].id)
+		end
+		cmdInput()
+		refresh()
+	end
+end
+
 --;===========================================================
 --; RESOLUTION SETTINGS
 --;===========================================================
 txt_resCfg = createTextImg(jgFnt, 0, 0, 'RESOLUTION SETTINGS', 159, 13)
 t_resCfg = {
-	{id = '', text = '320x240   (4:3 Low)'},
-	{id = '', text = '640x480   (4:3 High)'},
-	{id = '', text = '960x720   (4:3 HD)'},
-	{id = '', text = '1200x900  (4:3 HD+)'},
-	{id = '', text = '1440x1080 (4:3 fullHD)'},
-	{id = '', text = '427x240   (wide Low)'},
-	{id = '', text = '854x480   (wide High)'},
-	{id = '', text = '1280x720  (wide HD)'},
-	{id = '', text = '1600x900  (wide HD+)'},
-	{id = '', text = '1920x1080 (wide fullHD)'},
+	{id = '', x = 320,  y = 240,  text = '320x240     (4:3 QVGA)'},
+	{id = '', x = 640,  y = 480,  text = '640x480     (4:3 VGA)'},
+	{id = '', x = 800,  y = 600,  text = '800x600     (4:3 SVGA)'},
+	{id = '', x = 1024, y = 768,  text = '1024x768    (4:3 XGA)'},
+	{id = '', x = 1152, y = 864,  text = '1152x864    (4:3 XGA+)'},
+	{id = '', x = 1600, y = 1200, text = '1600x1200   (4:3 UXGA)'},
+	{id = '', x = 960,  y = 720,  text = '960x720     (4:3 HD)'},
+	{id = '', x = 1200, y = 900,  text = '1200x900    (4:3 HD+)'},
+	{id = '', x = 1440, y = 1080, text = '1440x1080   (4:3 FHD)'},
+	{id = '', x = 1280, y = 720,  text = '1280x720    (16:9 HD)'},
+	{id = '', x = 1600, y = 900,  text = '1600x900    (16:9 HD+)'},
+	{id = '', x = 1920, y = 1080, text = '1920x1080   (16:9 FHD)'},
+	{id = '', x = 2560, y = 1440, text = '2560x1440   (16:9 2K)'},
+	{id = '', x = 3840, y = 2160, text = '3840x2160   (16:9 4K)'},
+	{id = '', x = 1280, y = 800,  text = '1280x800    (16:10 WXGA)'},
+	{id = '', x = 1440, y = 900,  text = '1440x900    (16:10 WXGA+)'},
+	{id = '', x = 1680, y = 1050, text = '1680x1050   (16:10 WSXGA+)'},
+	{id = '', x = 1920, y = 1200, text = '1920x1200   (16:10 WUXGA)'},
+	{id = '', x = 2560, y = 1600, text = '2560x1600   (16:10 WQXGA)'},
+	{id = '', x = 400,  y = 254,  text = '400x254     (arcade)'},
+	{id = '', x = 800,  y = 508,  text = '400x508     (arcade x2)'},
+	{id = '', x = 1200, y = 762,  text = '1200x762    (arcade x3)'},
+	{id = '', x = 1600, y = 1016, text = '1600x1016   (arcade x4)'},
 	{id = '', text = 'Back'},
 }
 for i=1, #t_resCfg do
@@ -985,6 +1055,8 @@ end
 
 function f_resCfg()
 	cmdInput()
+	local cursorPosY = 1
+	local moveTxt = 0
 	local resCfg = 1
 	while true do
 		if esc() then
@@ -993,111 +1065,64 @@ function f_resCfg()
 		elseif commandGetState(p1Cmd, 'u') then
 			sndPlay(sysSnd, 100, 0)
 			resCfg = resCfg - 1
-			if resCfg < 1 then resCfg = #t_resCfg end
 		elseif commandGetState(p1Cmd, 'd') then
 			sndPlay(sysSnd, 100, 0)
 			resCfg = resCfg + 1
-			if resCfg > #t_resCfg then resCfg = 1 end
-		elseif btnPalNo(p1Cmd) > 0 then
-			--320x240 (4:3 low)
-			if resCfg == 1 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 320
-				resolutionHeight = 240
-				modified = 1
-				needReload = 1
-				break
-			--640x480 (4:3 high)
-			elseif resCfg == 2 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 640
-				resolutionHeight = 480
-				modified = 1
-				needReload = 1
-				break
-			--960x720 (4:3 HD)
-			elseif resCfg == 3 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 960
-				resolutionHeight = 720
-				modified = 1
-				needReload = 1
-				break
-			--1200x900 (4:3 HD+)
-			elseif resCfg == 4 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 1200
-				resolutionHeight = 900
-				modified = 1
-				needReload = 1
-				break
-			--1440x1080 (4:3 fullHD)
-			elseif resCfg == 5 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 1440
-				resolutionHeight = 1080
-				modified = 1
-				needReload = 1
-				break
-			--427x240 (wide low)
-			elseif resCfg == 6 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 427
-				resolutionHeight = 240
-				f_resWarning()
-				modified = 1
-				needReload = 1
-				break
-			--854x480 (wide high)
-			elseif resCfg == 7 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 854
-				resolutionHeight = 480
-				f_resWarning()
-				modified = 1
-				needReload = 1
-				break
-			--1280x720 (wide HD)
-			elseif resCfg == 8 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 1280
-				resolutionHeight = 720
-				f_resWarning()
-				modified = 1
-				needReload = 1
-				break
-			--1600x900 (wide HD+)
-			elseif resCfg == 9 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 1600
-				resolutionHeight = 900
-				f_resWarning()
-				modified = 1
-				needReload = 1
-				break
-			--1920x1080 (wide fullHD)
-			elseif resCfg == 10 then
-				sndPlay(sysSnd, 100, 0)
-				resolutionWidth = 1920
-				resolutionHeight = 1080
-				f_resWarning()
-				modified = 1
-				needReload = 1
-				break
-			--Back
+		end
+		--Cursor position calculation
+		if resCfg < 1 then
+			resCfg = #t_resCfg
+			if #t_resCfg > 14 then
+				cursorPosY = 14
 			else
+				cursorPosY = #t_resCfg
+			end
+		elseif resCfg > #t_resCfg then
+			resCfg = 1
+			cursorPosY = 1
+		elseif commandGetState(p1Cmd, 'u') and cursorPosY > 1 then
+			cursorPosY = cursorPosY - 1
+		elseif commandGetState(p1Cmd, 'd') and cursorPosY < 14 then
+			cursorPosY = cursorPosY + 1
+		end
+		if cursorPosY == 14 then
+			moveTxt = (resCfg - 14) * 15
+		elseif cursorPosY == 1 then
+			moveTxt = (resCfg - 1) * 15
+		end
+		--Options
+		if btnPalNo(p1Cmd) > 0 then
+			--Back
+			if resCfg == #t_resCfg then
 				sndPlay(sysSnd, 100, 2)
+				break
+			--Resolution
+			else
+				sndPlay(sysSnd, 100, 0)
+				resolutionWidth = t_resCfg[resCfg].x
+				resolutionHeight = t_resCfg[resCfg].y
+				if (resolutionHeight / 3 * 4) ~= resolutionWidth then
+					f_resWarning()
+				end
+				modified = 1
+				needReload = 1
 				break
 			end
 		end
 		animDraw(f_animVelocity(optionsBG0, -1, -1))
-		animSetWindow(optionsBG1, 80,20, 160,#t_resCfg*15)
-		animDraw(f_animVelocity(optionsBG1, -1, -1))
-		textImgDraw(txt_videoCfg)
-		for i=1, #t_resCfg do
-			textImgDraw(t_resCfg[i].id)
+		if moveTxt == 180 then
+			animSetWindow(optionsBG1, 80,20, 160,210)
+		else
+			animSetWindow(optionsBG1, 80,20, 160,#t_resCfg*15)
 		end
-		animSetWindow(cursorBox, 80,5+resCfg*15, 160,15)
+		animDraw(f_animVelocity(optionsBG1, -1, -1))
+		textImgDraw(txt_resCfg)
+		for i=1, #t_resCfg do
+			if i > resCfg - cursorPosY then
+				textImgDraw(f_updateTextImg(t_resCfg[i].id, font2, 0, 1, t_resCfg[i].text, 85, 15+i*15-moveTxt))
+			end
+		end
+		animSetWindow(cursorBox, 80,5+cursorPosY*15, 160,15)
 		f_dynamicAlpha(cursorBox, 20,100,5, 255,255,0)
 		animDraw(f_animVelocity(cursorBox, -1, -1))
 		cmdInput()
@@ -1106,8 +1131,8 @@ function f_resCfg()
 end
 
 t_resWarning = {
-	{id = '', text = "Wide resolution requires stages coded for 16:9 aspect"},
-	{id = '', text = "ratio. Change it back to 4:3 if stages looks off."},
+	{id = '', text = "Non 4:3 resolutions requires stages coded for different"},
+	{id = '', text = "aspect ratio. Change it back to 4:3 if stages look off."},
 }
 for i=1, #t_resWarning do
 	t_resWarning[i].id = createTextImg(font2, 0, 1, t_resWarning[i].text, 25, 15+i*15)
@@ -1472,6 +1497,54 @@ function f_keyCfg(playerNo, controller)
 	end
 end
 
+t_kpCfg = {
+	{id = '', text = 'Keyboard'},
+	{id = '', text = 'Keypad (Numpad)'},
+}
+for i=1, #t_kpCfg do
+	t_kpCfg[i].id = createTextImg(font2, 0, 1, t_kpCfg[i].text, 85, 15+i*15)
+end
+
+function f_kpCfg(swap1, swap2)
+	cmdInput()
+	local kpCfg = 1
+	while true do
+		if esc() then
+			sndPlay(sysSnd, 100, 2)
+			return swap1
+		elseif commandGetState(p1Cmd, 'u') then
+			sndPlay(sysSnd, 100, 0)
+			kpCfg = kpCfg - 1
+			if kpCfg < 1 then kpCfg = #t_kpCfg end
+		elseif commandGetState(p1Cmd, 'd') then
+			sndPlay(sysSnd, 100, 0)
+			kpCfg = kpCfg + 1
+			if kpCfg > #t_kpCfg then kpCfg = 1 end
+		end
+		if btnPalNo(p1Cmd) > 0 then
+			--Keyboard
+			if kpCfg == 1 then
+				return swap1
+			--Keypad (Numpad)
+			else
+				return swap2
+			end
+		end
+		animDraw(f_animVelocity(optionsBG0, -1, -1))
+		animSetWindow(optionsBG1, 80,20, 160,#t_kpCfg*15)
+		animDraw(f_animVelocity(optionsBG1, -1, -1))
+		textImgDraw(txt_keyCfg)
+		for i=1, #t_kpCfg do
+			textImgDraw(t_kpCfg[i].id)
+		end
+		animSetWindow(cursorBox, 80,5+kpCfg*15, 160,15)
+		f_dynamicAlpha(cursorBox, 20,100,5, 255,255,0)
+		animDraw(f_animVelocity(cursorBox, -1, -1))
+		cmdInput()
+		refresh()
+	end
+end
+
 function f_keyRead(playerNo, controller)
 	local tmp = s_configSSZ:match('in.new%[' .. playerNo .. '%]%.set%(\n*%s*' .. controller .. ',\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^,%s]*%s*,\n*%s*%(int%)k_t::[^%)%s]*%s*%);')
 	local tmp = tmp:gsub('in.new%[' .. playerNo .. '%]%.set%(\n*%s*' .. controller .. ',\n*%s*', '')
@@ -1496,8 +1569,33 @@ function f_padRead(playerNo, controller)
 	end
 end
 
+t_keySwap = {
+	{key = '`',  swap1 = 'GRAVE'},
+	{key = '=',  swap1 = 'EQUALS'},
+	{key = '[',  swap1 = 'LEFTBRACKET'},
+	{key = ']',  swap1 = 'RIGHTBRACKET'},
+	{key = '\\', swap1 = 'BACKSLASH'},
+	{key = ';',  swap1 = 'SEMICOLON'},
+	{key = "'",  swap1 = 'APOSTROPHE'},
+	{key = '*',  swap1 = 'KP_MULTIPLY'},
+	{key = '+',  swap1 = 'KP_PLUS'},
+	{key = '-',  swap1 = 'MINUS',  swap2 = 'KP_MINUS'},
+	{key = ',',  swap1 = 'COMMA',  swap2 = 'KP_PERIOD'},
+	{key = '.',  swap1 = 'PERIOD', swap2 = 'KP_PERIOD'},
+	{key = '/',  swap1 = 'SLASH',  swap2 = 'KP_DIVIDE'},
+	{key = '0',  swap1 = '0',      swap2 = 'KP_0'},
+	{key = '1',  swap1 = '1',      swap2 = 'KP_1'},
+	{key = '2',  swap1 = '2',      swap2 = 'KP_2'},
+	{key = '3',  swap1 = '3',      swap2 = 'KP_3'},
+	{key = '4',  swap1 = '4',      swap2 = 'KP_4'},
+	{key = '5',  swap1 = '5',      swap2 = 'KP_5'},
+	{key = '6',  swap1 = '6',      swap2 = 'KP_6'},
+	{key = '7',  swap1 = '7',      swap2 = 'KP_7'},
+	{key = '8',  swap1 = '8',      swap2 = 'KP_8'},
+	{key = '9',  swap1 = '9',      swap2 = 'KP_9'},
+}
 function f_readInput(oldKey)
-	--for some reason io.read() doesn't work, inputDialogPopup will be used as a awful workaround for now
+	--for some reason io.read() doesn't work, inputDialogPopup will be used as a workaround for now
 	--local key = io.read()
 	--while key == nil do
 	--	if esc() then
@@ -1513,8 +1611,19 @@ function f_readInput(oldKey)
 		refresh()
 	end
 	local key = inputDialogGetStr(inputdia)
-	if key == '' then --doesn't work?
-		local key = oldKey
+	if key == '' or key == nil then
+		key = oldKey
+	else
+		for i=1, #t_keySwap do
+			if key == t_keySwap[i].key then
+				if t_keySwap[i].swap2 == nil then
+					key = t_keySwap[i].swap1
+				else
+					key = f_kpCfg(t_keySwap[i].swap1, t_keySwap[i].swap2)
+				end
+				i = #t_keySwap
+			end
+		end
 	end
 	return key
 end

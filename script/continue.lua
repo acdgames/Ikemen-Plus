@@ -58,7 +58,7 @@ function f_continue()
 		i = i + 1
 		if esc() then
 			cmdInput()
-			playBGM('')
+			playBGM(bgmTitle)
 			break
 		elseif data.continue == 0 then --waiting for player's decision
 			if anim then
@@ -77,7 +77,7 @@ function f_continue()
 				textImgSetText(txt_coins, 'Coins: ' .. data.coinsLeft)
 				fadeContinue = f_fadeAnim(30, 'fadeout', 'black', fadeSff)
 				data.continue = 1
-			elseif i > 1366 then -- Continue = NO
+			elseif i > 1366 then --Continue = NO
 				data.continue = 2
 				f_gameOver()
 				break
@@ -152,7 +152,7 @@ function f_continue()
 			else
 				data.fadeSelect = f_fadeAnim(10, 'fadein', 'black', fadeSff)
 				cmdInput()
-				playBGM('')
+				playBGM(bgmSelect)
 				break
 			end
 		end
@@ -189,7 +189,7 @@ function f_gameOver()
 		i = i + 1
 		if esc() then
 			cmdInput()
-			playBGM('')
+			playBGM(bgmTitle)
 			break
 		else
 			if anim then
